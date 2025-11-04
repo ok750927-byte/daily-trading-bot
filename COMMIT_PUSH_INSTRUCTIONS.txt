@@ -1,0 +1,35 @@
+Suggested commit message (one-line + body):
+
+[feat] Add approval workflow, operator persistence, env/keyring fallbacks, and CI artifacts
+
+- Add ApprovalManager, webhook notifications, and audit masking
+- Wire realtime approval UI into `gui_app.py` and persist operator name to `results/operator.txt`
+- Add operator keyring helper and CLI to store credentials (scripts/operator_set_creds.py)
+- Improve env_check to read .env / secrets.json / keyring (dev-friendly)
+- Add Streamlit dashboard (scripts/dashboard_streamlit.py)
+- Consolidate CI workflow to produce pytest JUnit XML and upload artifacts
+- Add local GUI automation helper and pytest stub for manual runs
+
+Commands to commit and push locally (run in repo root):
+
+# check status and stage changes
+git status --porcelain
+
+# add specific files (recommended to avoid unintended files)
+git add src/trading/approval.py src/trading/realtime_trader.py src/trading/operator_auth.py \
+    gui_app.py scripts/operator_set_creds.py scripts/run_gui_automation.py scripts/dashboard_streamlit.py \
+    .github/workflows/ci.yml requirements.txt COMMIT_PUSH_INSTRUCTIONS.txt
+
+# create a descriptive commit
+git commit -m "[feat] Add approval workflow, operator persistence, env/keyring fallbacks, and CI artifacts" -m "See COMMIT_PUSH_INSTRUCTIONS.txt for details"
+
+# push to a feature branch and open PR
+git branch -M feature/approval-ci
+git push -u origin feature/approval-ci
+
+Notes:
+- Review the `git add` list and adjust if other files need to be included or excluded.
+- If you prefer a single patch file instead of direct commits, run:
+  git format-patch -1 HEAD --stdout > my-change.patch
+
+If you'd like, I can also create the commit automatically here (requires local git access in this environment).

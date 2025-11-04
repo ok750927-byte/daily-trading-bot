@@ -1,0 +1,4 @@
+{"timestamp": 1762155395, "symbol": "005930", "qty": 1, "price": 70000.0, "side": "buy", "idempotency_key": null, "result": {"status": "simulated", "symbol": "005930", "side": "buy", "qty": 1, "price": 70000.0, "order_id": "sim-1762155395935"}}
+{"timestamp": 1762155396, "symbol": "000660", "qty": 2, "price": 120000.0, "side": "buy", "idempotency_key": null, "result": {"status": "simulated", "symbol": "000660", "side": "buy", "qty": 2, "price": 120000.0, "order_id": "sim-1762155396451"}}
+{"timestamp": 1762155396, "symbol": "035720", "qty": 1, "price": 90000.0, "side": "sell", "idempotency_key": null, "result": {"status": "simulated", "symbol": "035720", "side": "sell", "qty": 1, "price": 90000.0, "order_id": "sim-1762155396968"}}
+{"event": "webhook.order", "order_id": "test-123", "payload": {"symbol": "005930", "side": "buy", "qty": 1, "price": 70000, "order_id": "test-123"}}

@@ -1,0 +1,39 @@
+{
+    "prediction_date": "2025-11-04",
+    "recommendations": [
+        {
+            "code": "000660",
+            "last_close_price": 559000,
+            "up_probability": 98.0,
+            "estimated_gain_rate": 9.68,
+            "reasons": [
+                "단기 상승 추세 (MA5 > MA20)",
+                "현재가가 단기 이평선 돌파",
+                "MACD 신호 긍정적"
+            ]
+        },
+        {
+            "code": "005930",
+            "last_close_price": 107500,
+            "up_probability": 75.0,
+            "estimated_gain_rate": 6.0,
+            "reasons": [
+                "단기 상승 추세 (MA5 > MA20)",
+                "현재가가 단기 이평선 돌파",
+                "MACD 신호 긍정적"
+            ]
+        },
+        {
+            "code": "035720",
+            "last_close_price": 65100,
+            "up_probability": 62.0,
+            "estimated_gain_rate": 3.92,
+            "reasons": [
+                "단기 상승 추세 (MA5 > MA20)",
+                "현재가가 단기 이평선 돌파",
+                "거래량 급증 (관심도 상승)",
+                "MACD 신호 긍정적"
+            ]
+        }
+    ]
+}

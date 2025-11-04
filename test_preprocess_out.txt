@@ -1,0 +1,9 @@
+.                                                                        [100%]
+============================== warnings summary ===============================
+tests\conftest.py:23
+  d:\codding\daily-trading-bot\daily-trading-bot\tests\conftest.py:23: PytestRemovedIn9Warning: The (path: py.path.local) argument is deprecated, please use (collection_path: pathlib.Path)
+  see https://docs.pytest.org/en/latest/deprecations.html#py-path-local-arguments-for-hooks-replaced-with-pathlib-path
+    def pytest_ignore_collect(path, config):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 0.92s

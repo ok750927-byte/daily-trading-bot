@@ -1,0 +1,12 @@
+
+[2025-11-02 13:21:14.560295] 자동 파이프라인 실행 시작
+[2025-11-02 13:21:14.635273] [오류] Command '['D:\\codding\\daily-trading-bot\\daily-trading-bot\\venv\\Scripts\\python.exe', 'src/trading/env_check.py']' returned non-zero exit status 1.
+[2025-11-02 13:21:14.635273] 자동 파이프라인 종료
+
+[2025-11-02 13:23:10.404671] 자동 파이프라인 실행 시작
+[2025-11-02 13:23:20.678446] [오류] Command '['D:\\codding\\daily-trading-bot\\daily-trading-bot\\venv\\Scripts\\python.exe', 'main.py', '--action', 'all']' returned non-zero exit status 1.
+[2025-11-02 13:23:20.678446] 자동 파이프라인 종료
+
+[2025-11-02 13:24:12.628058] 자동 파이프라인 실행 시작
+[2025-11-02 13:24:39.146936] [오류] Command '['D:\\codding\\daily-trading-bot\\daily-trading-bot\\venv\\Scripts\\python.exe', 'src/trading/signal_order_bridge.py']' returned non-zero exit status 1.
+[2025-11-02 13:24:39.146936] 자동 파이프라인 종료

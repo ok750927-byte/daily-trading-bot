@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: trading-bot
+Version: 0.0.1
+Summary: A simple stock trading bot project
+Author-email: User <user@example.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8

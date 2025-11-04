@@ -1,0 +1,8 @@
+[
+  {"date": "2025-10-28", "strategy": "gap", "profit": 120000, "balance": 1012000},
+  {"date": "2025-10-29", "strategy": "momentum", "profit": -50000, "balance": 965000},
+  {"date": "2025-10-30", "strategy": "breakout", "profit": 80000, "balance": 1048000},
+  {"date": "2025-10-31", "strategy": "gap", "profit": 30000, "balance": 1078000},
+  {"date": "2025-11-01", "strategy": "momentum", "profit": 20000, "balance": 1098000},
+  {"date": "2025-11-02", "strategy": "breakout", "profit": -40000, "balance": 1058000}
+]

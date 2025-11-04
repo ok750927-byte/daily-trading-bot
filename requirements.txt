@@ -1,0 +1,14 @@
+pandas
+requests
+finance-datareader
+scikit-learn
+jupyterlab
+flask
+python-telegram-bot
+numpy
+pytest
+matplotlib
+keyring
+python-dotenv
+pytest-qt
+streamlit

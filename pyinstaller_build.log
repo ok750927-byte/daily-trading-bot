@@ -1,0 +1,35 @@
+648 INFO: PyInstaller: 6.16.0, contrib hooks: 2025.9
+648 INFO: Python: 3.10.0
+670 INFO: Platform: Windows-10-10.0.26100-SP0
+671 INFO: Python environment: C:\Program Files\Python310
+672 INFO: wrote D:\codding\daily-trading-bot\daily-trading-bot\daily_trading_gui.spec
+682 INFO: Module search paths (PYTHONPATH):
+['D:\\codding\\daily-trading-bot\\daily-trading-bot',
+ 'C:\\Program Files\\Python310\\python310.zip',
+ 'C:\\Program Files\\Python310\\DLLs',
+ 'C:\\Program Files\\Python310\\lib',
+ 'C:\\Program Files\\Python310',
+ 'C:\\Users\\cho\\AppData\\Roaming\\Python\\Python310\\site-packages',
+ 'C:\\Program Files\\Python310\\lib\\site-packages',
+ 'C:\\Users\\cho\\AppData\\Roaming\\Python\\Python310\\site-packages\\setuptools\\_vendor',
+ 'D:\\codding\\daily-trading-bot\\daily-trading-bot']
+pygame 2.1.2 (SDL 2.0.18, Python 3.10.0)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+1873 INFO: checking Analysis
+1948 INFO: checking PYZ
+2011 INFO: checking PKG
+2012 INFO: Building PKG because PKG-00.toc is non existent
+2012 INFO: Building PKG (CArchive) daily_trading_gui.pkg
+12412 INFO: Building PKG (CArchive) daily_trading_gui.pkg completed successfully.
+12418 INFO: Bootloader C:\Users\cho\AppData\Roaming\Python\Python310\site-packages\PyInstaller\bootloader\Windows-64bit-intel\run.exe
+12418 INFO: checking EXE
+12419 INFO: Building EXE because EXE-00.toc is non existent
+12419 INFO: Building EXE from EXE-00.toc
+12419 INFO: Copying bootloader EXE to D:\codding\daily-trading-bot\daily-trading-bot\dist_release\daily_trading_gui.exe
+12581 INFO: Copying icon to EXE
+12641 INFO: Copying 0 resources to EXE
+12641 INFO: Embedding manifest in EXE
+12702 INFO: Appending PKG archive to EXE
+14923 INFO: Fixing EXE headers
+15611 INFO: Building EXE from EXE-00.toc completed successfully.
+15621 INFO: Build complete! The results are available in: D:\codding\daily-trading-bot\daily-trading-bot\dist_release

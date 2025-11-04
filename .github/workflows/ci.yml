@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.12]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system deps (Xvfb)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y xvfb
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-qt
+
+      - name: Run tests (produce junit xml and log)
+        run: |
+          pytest -q --junitxml=pytest_full_run.xml |& tee pytest_full_run.log || true
+
+      - name: Upload pytest artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-artifacts
+          path: |
+            pytest_full_run.xml
+            pytest_full_run.log
+
+      - name: Run GUI test under Xvfb (single test)
+        run: |
+          xvfb-run -s "-screen 0 1280x720x24" pytest -q tests/test_gui_automation_pytestqt.py::test_gui_pipeline_runs_and_creates_report |& tee gui_test.log || true
+
+      - name: Upload GUI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-test-artifacts
+          path: |
+            gui_test.log
+
+  windows-build:
+    name: Windows Test & Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-qt pyinstaller
+      - name: Run tests
+        run: |
+          python -m pytest -q --junitxml=pytest_windows.xml |& tee pytest_windows.log || true
+      - name: Upload windows pytest artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-windows-artifacts
+          path: |
+            pytest_windows.xml
+            pytest_windows.log
+      - name: Build exe (PyInstaller)
+        run: |
+          python -m PyInstaller --onefile run_gui.py --name daily_trading_gui --distpath dist_release --noconfirm --console
+      - name: Upload exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily_trading_gui
+          path: dist_release/daily_trading_gui.exe

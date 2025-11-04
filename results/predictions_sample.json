@@ -1,0 +1,13 @@
+{
+    "prediction_date": "2025-10-29",
+    "recommendations": [
+        {
+            "code": "005930",
+            "last_close_price": 85000
+        },
+        {
+            "code": "000660",
+            "last_close_price": 130000
+        }
+    ]
+}

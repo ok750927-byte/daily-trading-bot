@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  webhook:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - WEBHOOK_PORT=8000
+      - ORDER_LOG_PATH=/data/order_log.jsonl
+      # Set BROKER_WEBHOOK_SECRET for HMAC verification in production
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data

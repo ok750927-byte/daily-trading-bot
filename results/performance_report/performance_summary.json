@@ -1,0 +1,6 @@
+{
+  "total_trades": 100,
+  "win_rate": 65.0,
+  "total_profit": 15000.0,
+  "message": "pyinstaller 호환성 테스트용 간소화 버전"
+}

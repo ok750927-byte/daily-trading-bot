@@ -1,0 +1,35 @@
+{
+  "total_trades": 4,
+  "win_trades": 3,
+  "loss_trades": 1,
+  "win_rate": 75.0,
+  "total_profit": 180000.0,
+  "avg_profit": 45000.0,
+  "max_drawdown": 47000.0,
+  "volatility": 73257.5365861197,
+  "max_loss": -50000.0,
+  "last_balance": 1078000.0,
+  "strategy_stats": [
+    {
+      "strategy": "breakout",
+      "trades": 1,
+      "win_rate": 100.0,
+      "total_profit": 80000,
+      "avg_profit": 80000.0
+    },
+    {
+      "strategy": "gap",
+      "trades": 2,
+      "win_rate": 100.0,
+      "total_profit": 150000,
+      "avg_profit": 75000.0
+    },
+    {
+      "strategy": "momentum",
+      "trades": 1,
+      "win_rate": 0.0,
+      "total_profit": -50000,
+      "avg_profit": -50000.0
+    }
+  ]
+}
