@@ -41,14 +41,32 @@ results/
 
 # Secrets and env
 secrets.json
+secrets.json.local.bak
 .env
 .env.*
+
 # Python
 venv/
+venv*/
+ENV/
+env/
 __pycache__/
 *.pyc
-.env
-.DS_Store
+*.pyo
 
-# data
-data/
+# Editor/IDE
+.vscode/
+.idea/
+
+# Distribution
+dist/
+build/
+dist_final/
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Logs and results
+*.log
+results/
