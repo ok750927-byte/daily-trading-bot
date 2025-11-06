@@ -10,14 +10,16 @@ def _safe_group_apply(grouped, func):
     Prefer calling include_groups=False when available to silence
     the FutureWarning; otherwise fall back to the plain apply.
     """
-    # Prefer preserving grouping columns (include_groups=True) so that
-    # downstream code that expects the grouping column (e.g., 'code') keeps
-    # working. If include_groups isn't supported by the pandas version in use,
-    # fall back to the plain apply.
+    # Prefer excluding grouping columns (include_groups=False) when supported
+    # to follow future pandas behavior and silence FutureWarning. If the
+    # pandas version does not support include_groups, fall back gracefully.
     try:
-        return grouped.apply(func, include_groups=True)
+        return grouped.apply(func, include_groups=False)
     except TypeError:
-        return grouped.apply(func)
+        try:
+            return grouped.apply(func, include_groups=True)
+        except TypeError:
+            return grouped.apply(func)
 
 
 def _safe_read_table(path):

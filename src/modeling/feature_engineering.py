@@ -11,13 +11,16 @@ def _safe_group_apply(grouped, func):
     Tries to call apply(..., include_groups=False) when supported,
     otherwise falls back to the plain apply(func).
     """
-    # Prefer preserving grouping columns (include_groups=True) to maintain
-    # existing behavior. If include_groups isn't supported by this pandas
-    # version, fall back to the plain apply.
+    # Prefer excluding grouping columns (include_groups=False) when supported
+    # to follow future pandas behavior and silence FutureWarning. If the
+    # pandas version does not support include_groups, fall back gracefully.
     try:
-        return grouped.apply(func, include_groups=True)
+        return grouped.apply(func, include_groups=False)
     except TypeError:
-        return grouped.apply(func)
+        try:
+            return grouped.apply(func, include_groups=True)
+        except TypeError:
+            return grouped.apply(func)
 
 def create_target(df: pd.DataFrame, period: int = 5) -> pd.DataFrame:
     """
@@ -39,6 +42,14 @@ def create_target(df: pd.DataFrame, period: int = 5) -> pd.DataFrame:
 
     grouped = df_target.groupby('code', group_keys=False)
     df_target = _safe_group_apply(grouped, calculate_future_return)
+
+    # Some pandas versions and GroupBy.apply variants may drop grouping columns
+    # when include_groups=False is used. Ensure the original 'code' column is
+    # present for downstream code and tests by restoring it from the input copy
+    # if necessary.
+    if 'code' not in df_target.columns and 'code' in df.columns:
+        # preserve original alignment
+        df_target['code'] = df['code'].values
     
     # 미래 수익률이 0보다 크면 1(상승), 아니면 0(하락/보합)
     # future_return이 NaN이 아닌 행에 대해서만 target 생성
