@@ -176,5 +176,21 @@
     <p><b>권장 우선순위(단계):</b> 1) parquet 처리(혹은 CI에 pyarrow 추가), 2) 외부 API mocking 적용, 3) 남은 실패 테스트 개별 수정 및 전체 재검증</p>
   </div>
 
+  <div class="section">
+    <h2>검토 진행 상황 (자동 업데이트)</h2>
+    <p>다음 체크리스트는 리포지토리 스캔 및 로컬 작업 결과를 반영한 상태입니다. 날짜: <strong>2025-11-06</strong></p>
+    <ul>
+      <li><label><input type="checkbox" checked> 정적 보안 스캔 (하드코딩된 시크릿, 로그 마스킹 탐지 및 일부 치환) — 완료</label></li>
+      <li><label><input type="checkbox" checked> 테스트 실행 및 실패 수정 (로컬 pytest 전체 통과 확인) — 완료</label></li>
+      <li><label><input type="checkbox" unchecked> 의존성/환경 감사 (requirements.txt, pyproject.toml 검토 및 핀 고정 권장) — 보류</label></li>
+      <li><label><input type="checkbox" unchecked> 전체 코드 품질 검토 및 리팩터 (아키텍처/로깅/오류처리 우선순위별 개선) — 진행중</label></li>
+      <li><label><input type="checkbox" checked> CI/CD 및 배포 검토 (GitHub Actions 워크플로우, Dockerfile 등 점검) — 완료(로컬 추가)</label></li>
+      <li><label><input type="checkbox" checked> 운영/키 교체 가이드 및 템플릿 생성 (issues/ROTATE_KEYS_TASK.md 등) — 완료</label></li>
+      <li><label><input type="checkbox" unchecked> 원격 이슈 생성 및 팀 알림 자동화 (원격 생성 시도, 토큰 권한 문제로 미완료) — 로컬 준비 완료, 원격 생성 실패(토큰 권한 필요)</label></li>
+      <li><label><input type="checkbox" unchecked> 원격 히스토리 정리 (force-push 통한 시크릿 제거) — 보류(팀 조율 필요)</label></li>
+    </ul>
+    <p><small>비고: "완료"로 표시된 항목은 로컬에서 적용 및 커밋되었습니다. 원격 푸시/PR 생성은 사용자의 승인과 적절한 권한(PAT 또는 GitHub 권한) 필요합니다.</small></p>
+  </div>
+
 </body>
 </html>
