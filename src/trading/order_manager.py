@@ -67,6 +67,42 @@ class OrderManager:
         self._persist(rec)
         if idempotency_key:
             self.mark_idempotent(idempotency_key)
+
+    def sync_with_broker(self, broker) -> dict:
+        """Compare local order log statuses with the broker's reported status.
+
+        Returns a dict with keys: 'checked' (int) and 'mismatches' (list).
+        Each mismatch is a dict with 'order_id', 'local', and 'remote'.
+        """
+        report = {'checked': 0, 'mismatches': []}
+        try:
+            if not os.path.exists(self.log_path):
+                return report
+            with open(self.log_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        rec = json.loads(line)
+                    except Exception:
+                        continue
+                    # support multiple log shapes: {'result': {...}} or {'order': {...}}
+                    res = rec.get('result') or rec.get('order') or {}
+                    order_id = res.get('order_id')
+                    local_status = res.get('status')
+                    if not order_id:
+                        continue
+                    report['checked'] += 1
+                    try:
+                        remote = broker.get_order_status(order_id)
+                    except Exception as e:
+                        report['mismatches'].append({'order_id': order_id, 'local': local_status, 'remote': 'error'})
+                        continue
+                    remote_status = remote.get('status') if isinstance(remote, dict) else None
+                    if local_status != remote_status:
+                        report['mismatches'].append({'order_id': order_id, 'local': local_status, 'remote': remote_status})
+        except Exception:
+            # be tolerant: if sync fails, return what we have so caller can handle
+            return report
+        return report
 """
 실전 자동매매 주문/예외처리 모듈 (샘플)
 - 주문 실행, 예외처리, 실시간 체결/잔고 모니터링, 장애 복구 로직 포함
