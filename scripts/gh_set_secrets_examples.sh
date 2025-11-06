@@ -2,7 +2,7 @@
 # Example commands to set repository secrets using GitHub CLI (`gh`).
 # Replace <owner>/<repo> with your repository, and provide the new values.
 
-REPO="ok750927-byte/daily-trading-bot"  # e.g. myorg/daily-trading-bot
+REPO="ok750927-byte/daily-trading-bot"  # repository owner/repo
 
 echo "Setting secrets in repo: $REPO"
 
