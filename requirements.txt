@@ -12,3 +12,6 @@ keyring
 python-dotenv
 pytest-qt
 streamlit
+prometheus-client
+cryptography
+requests-mock

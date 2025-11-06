@@ -1,4 +1,49 @@
 # Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+eggs/
+.eggs/
+*.egg
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+venv*/
+ENV/
+env/
+venv314/
+
+# Distribution / packaging
+dist_final/
+dist_*/
+build/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Test / cache
+.pytest_cache/
+tests/__pycache__/
+
+# Logs and results
+*.log
+results/
+
+# Secrets and env
+secrets.json
+.env
+.env.*
+# Python
 venv/
 __pycache__/
 *.pyc
