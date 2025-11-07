@@ -54,7 +54,7 @@ Summary
  - Update CI and runtime environment variables with the new webhook URL.
 
  GitHub Actions / CI
- - Prefer repository secrets: `Settings -> Secrets and variables -> Actions` (or use `gh secret set`).
+- Prefer repository secrets: `Settings -> Secrets and variables -> Actions` (or use `gh secret set`). <!-- pragma: allowlist secret -->
  - Example: update secret via script (Linux/macOS/WSL / PowerShell recommended for Windows):
 	 ```bash
 	 ./scripts/gh_set_secrets_examples.sh ok750927-byte/daily-trading-bot
