@@ -12,6 +12,9 @@ import time
 # Integration notes: Import and call your project's ApprovalManager where available:
 # from src.trading.approval import manager as approval_manager
 # Use approval_manager.submit(request) / approval_manager.approve(id) etc.
+from src.trading.approval import manager as approval_manager
+from src.trading.execution import ExecutionGateway
+from src.trading.strategy_runner import run_strategy
 
 class ExpertTradingInterface(tk.Tk):
     def __init__(self):
@@ -114,6 +117,14 @@ class ExpertTradingInterface(tk.Tk):
         submit_approve_btn = ttk.Button(btn_frame, text='Submit for Approval', command=self._on_submit_for_approval)
         submit_approve_btn.pack(side=tk.LEFT, padx=8)
 
+    # Execution mode selector
+    mode_frm = ttk.Frame(parent)
+    mode_frm.pack(fill=tk.X, padx=8)
+    ttk.Label(mode_frm, text='Execution Mode:').pack(side=tk.LEFT)
+    self.exec_mode = tk.StringVar(value='SIM')
+    ttk.Radiobutton(mode_frm, text='SIM', variable=self.exec_mode, value='SIM', command=self._on_mode_change).pack(side=tk.LEFT, padx=4)
+    ttk.Radiobutton(mode_frm, text='LIVE', variable=self.exec_mode, value='LIVE', command=self._on_mode_change).pack(side=tk.LEFT, padx=4)
+
     def _build_approvals(self, parent):
         lbl = ttk.Label(parent, text='Pending Approvals', font=('Helvetica', 12, 'bold'))
         lbl.pack(anchor=tk.W, padx=8, pady=(8,4))
@@ -132,6 +143,9 @@ class ExpertTradingInterface(tk.Tk):
         ttk.Button(btns, text='Approve Selected', command=self._approve_selected).pack(side=tk.LEFT)
         ttk.Button(btns, text='Reject Selected', command=self._reject_selected).pack(side=tk.LEFT, padx=8)
 
+    # refresh button
+    ttk.Button(btns, text='Refresh', command=self._refresh_pending).pack(side=tk.RIGHT)
+
     def _build_strategy(self, parent):
         lbl = ttk.Label(parent, text='Strategy Editor (minimal)', font=('Helvetica', 12, 'bold'))
         lbl.pack(anchor=tk.W, padx=8, pady=(8,4))
@@ -141,6 +155,7 @@ class ExpertTradingInterface(tk.Tk):
         self.strategy_text.insert('1.0', '# Define strategy logic here (python-like pseudo)\n')
 
         ttk.Button(parent, text='Save Strategy (not implemented)', command=lambda: messagebox.showinfo('Info','Save not implemented')).pack(pady=(0,8))
+    ttk.Button(parent, text='Run Strategy', command=self._run_strategy).pack(pady=(0,8))
 
     def _build_logs(self, parent):
         self.log_text = scrolledtext.ScrolledText(parent, state='disabled')
@@ -172,9 +187,11 @@ class ExpertTradingInterface(tk.Tk):
         order = dict(symbol=symbol, side=side, qty=int(qty), type=otype, price=price)
         self._append_log(f"Order submitted: {order}")
 
-        # TODO: integrate with order gateway / execution engine
-        # Example hook point:
-        # execution_gateway.send_order(order)
+        res = self.execution.send_order(order)
+        if res.get('status') == 'ok':
+            self._append_log(f"Executed order (mode={self.execution.mode}): {res['report']}")
+        else:
+            self._append_log(f"Execution failed: {res.get('reason')}")
 
     def _on_submit_for_approval(self):
         # Create a request and (optionally) call ApprovalManager
@@ -187,10 +204,10 @@ class ExpertTradingInterface(tk.Tk):
         req = dict(symbol=symbol, side=side, qty=int(qty), requested_by='expert')
         self._append_log(f"Submitted for approval: {req}")
 
-        # Integration with ApprovalManager (example):
-        # from src.trading.approval import manager
-        # manager.submit(req)
-        # Then refresh approval list
+    # Submit to ApprovalManager and refresh pending list
+    aid = approval_manager.submit(req)
+    self._append_log(f"Approval requested (id={aid})")
+    self._refresh_pending()
 
     def _approve_selected(self):
         sel = self.approval_list.selection()
@@ -199,9 +216,9 @@ class ExpertTradingInterface(tk.Tk):
             return
         for item in sel:
             vals = self.approval_list.item(item, 'values')
+            approval_id = vals[0]
+            approval_manager.approve(approval_id, operator='gui')
             self._append_log(f"Approved: {vals}")
-            # call approval manager approve here
-            # approval_manager.approve(vals[0])
             self.approval_list.set(item, 'status', 'APPROVED')
 
     def _reject_selected(self):
@@ -211,8 +228,9 @@ class ExpertTradingInterface(tk.Tk):
             return
         for item in sel:
             vals = self.approval_list.item(item, 'values')
+            approval_id = vals[0]
+            approval_manager.reject(approval_id, operator='gui')
             self._append_log(f"Rejected: {vals}")
-            # approval_manager.reject(vals[0])
             self.approval_list.set(item, 'status', 'REJECTED')
 
     def _start_clock(self):
@@ -226,6 +244,76 @@ class ExpertTradingInterface(tk.Tk):
                 time.sleep(1)
         t = threading.Thread(target=tick, daemon=True)
         t.start()
+
+    # ---- new: integration plumbing ----
+    def _on_mode_change(self):
+        self.execution.set_mode(self.exec_mode.get())
+        self._append_log(f"Execution mode set to {self.execution.mode}")
+
+    def _refresh_pending(self):
+        # populate the approval_list from approval_manager
+        for it in self.approval_list.get_children():
+            self.approval_list.delete(it)
+        try:
+            pending = approval_manager.list_pending()
+            for rec in pending:
+                aid = rec.get('approval_id')
+                order = rec.get('order') or rec.get('signal') or {}
+                self.approval_list.insert('', 'end', values=(aid, order.get('symbol',''), order.get('side',''), order.get('qty',''), rec.get('status','pending')))
+        except Exception as e:
+            self._append_log(f"Failed to refresh pending: {e}")
+
+    def _on_approved_handler(self, rec):
+        # Called by ApprovalManager when an approval is approved.
+        try:
+            order = rec.get('order') or rec.get('signal') or {}
+            self._append_log(f"Approval handler triggered for {rec.get('approval_id')}, executing order: {order}")
+            res = self.execution.send_order(order)
+            if res.get('status') == 'ok':
+                self._append_log(f"Auto-executed approved order: {res['report']}")
+            else:
+                self._append_log(f"Auto-execution failed: {res.get('reason')}")
+        except Exception as e:
+            self._append_log(f"Approval handler exception: {e}")
+
+    def _run_strategy(self):
+        code = self.strategy_text.get('1.0', 'end')
+        self._append_log('Running strategy (sandbox) ...')
+        # Provide a small ctx with read-only access to positions/cash
+        ctx = {'cash': self.cash_var.get(), 'positions': self.positions_box.get('1.0', 'end')}
+        try:
+            out = run_strategy(code, ctx=ctx, timeout=5)
+            if 'result' in out:
+                self._append_log(f"Strategy result: {out['result']}")
+            else:
+                self._append_log(f"Strategy error: {out.get('error')}\n{out.get('trace','')}")
+        except Exception as e:
+            self._append_log(f"Strategy execution failed: {e}")
+
+    # override mainloop start to register handlers and start periodic refresh
+    def mainloop(self, *args, **kwargs):
+        # initialize execution gateway
+        self.execution = ExecutionGateway(mode=self.exec_mode.get())
+        # register approval handler
+        try:
+            approval_manager.register_handler(self._on_approved_handler)
+        except Exception:
+            pass
+        # initial pending populate
+        self._refresh_pending()
+        # schedule periodic refresh
+        def periodic_refresh():
+            try:
+                while True:
+                    time.sleep(5)
+                    try:
+                        self._refresh_pending()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+        threading.Thread(target=periodic_refresh, daemon=True).start()
+        super().mainloop(*args, **kwargs)
 
 
 if __name__ == '__main__':
