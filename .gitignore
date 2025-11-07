@@ -20,6 +20,9 @@ venv314/
 
 # Distribution / packaging
 dist_final/
+dist_release/
+build/
+dist_pyinstaller_console_merge/
 dist_*/
 build/
 

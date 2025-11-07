@@ -1,0 +1,61 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Daily Trading Bot Monitor",
+    "tags": [
+      "trading",
+      "bot",
+      "automated"
+    ],
+    "timezone": "Asia/Seoul",
+    "refresh": "5s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "시스템 리소스",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "trading_bot_cpu_percent",
+            "legendFormat": "CPU (%)",
+            "refId": "A"
+          },
+          {
+            "expr": "trading_bot_memory_percent",
+            "legendFormat": "Memory (%)",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "거래 성과",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "trading_bot_total_profit",
+            "legendFormat": "총 손익",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}

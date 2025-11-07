@@ -1,0 +1,29 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Trading Bot - Basic Metrics",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Orders Total",
+        "targets": [
+          {"expr": "orders_total", "refId": "A"}
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "Orders Failed",
+        "targets": [
+          {"expr": "orders_failed", "refId": "B"}
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Open Positions",
+        "targets": [{"expr": "open_positions", "refId": "C"}]
+      }
+    ],
+    "schemaVersion": 18,
+    "version": 1
+  }
+}

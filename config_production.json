@@ -1,0 +1,83 @@
+{
+  "system": {
+    "environment": "production",
+    "debug_mode": false,
+    "log_level": "INFO",
+    "max_workers": 4
+  },
+  "trading": {
+    "enabled": true,
+    "dry_run": false,
+    "target_stocks": [
+      "005930",
+      "000660", 
+      "207940",
+      "005380",
+      "005490"
+    ],
+    "max_position_size": 10000000,
+    "max_daily_loss": -500000,
+    "stop_loss_rate": -0.03,
+    "take_profit_rate": 0.05,
+    "position_size_ratio": 0.2,
+    "max_positions": 3
+  },
+  "risk_management": {
+    "enabled": true,
+    "daily_loss_limit": -1000000,
+    "max_drawdown_limit": -2000000,
+    "position_concentration_limit": 0.3,
+    "volatility_filter": true,
+    "market_hours_only": true
+  },
+  "signals": {
+    "technical_weight": 0.7,
+    "ml_weight": 0.3,
+    "min_signal_strength": 0.6,
+    "signal_cooldown_minutes": 30
+  },
+  "api": {
+    "korea_investment": {
+      "base_url": "https://openapi.koreainvestment.com:9443",
+      "websocket_url": "ws://ops.koreainvestment.com:21000",
+      "rate_limit": 100,
+      "timeout": 30
+    }
+  },
+  "alerts": {
+    "discord": {
+      "enabled": true,
+      "webhook_url": "",
+      "daily_report_time": "18:00",
+      "error_notifications": true,
+      "trade_notifications": true,
+      "prediction_notifications": true,
+      "milestone_notifications": true
+    },
+    "email": {
+      "enabled": false,
+      "smtp_server": "",
+      "smtp_port": 587,
+      "sender_email": "",
+      "recipient_email": ""
+    }
+  },
+  "monitoring": {
+    "dashboard_port": 8501,
+    "metrics_port": 9090,
+    "health_check_interval": 60,
+    "performance_log_interval": 300
+  },
+  "data": {
+    "update_interval": 60,
+    "history_days": 365,
+    "backup_enabled": true,
+    "backup_interval_hours": 24
+  },
+  "model": {
+    "retrain_interval_days": 7,
+    "min_training_samples": 1000,
+    "feature_selection": true,
+    "cross_validation": true
+  }
+}
