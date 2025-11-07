@@ -39,7 +39,7 @@ def run_backtesting(data_path, model_path, scaler_path, output_dir):
         'volume_ma5', 'volume_ma20',
         'rsi', 'macd_signal',
     ]
-    
+
     # 테스트 데이터에 피처가 모두 있는지 확인
     if not all(f in test_data.columns for f in features):
         missing_features = [f for f in features if f not in test_data.columns]
@@ -48,13 +48,13 @@ def run_backtesting(data_path, model_path, scaler_path, output_dir):
 
     X_test = test_data[features]
     X_test_scaled = scaler.transform(X_test)
-    
+
     test_data['prediction'] = model.predict(X_test_scaled)
 
     # 3. 수익률 계산
     # 전략 수익률: 모델이 1(상승)로 예측한 날의 '미래 수익률'
     test_data['strategy_return'] = test_data['future_return'] * test_data['prediction']
-    
+
     # 시장 수익률 (Buy & Hold): 모든 날의 '미래 수익률'의 평균
     # 종목별로 계산 후 평균
     test_data['market_return'] = test_data.groupby('code')['future_return'].transform('mean')
@@ -66,7 +66,7 @@ def run_backtesting(data_path, model_path, scaler_path, output_dir):
     # 5. 성과 분석
     final_strategy_return = test_data['strategy_cumulative_return'].iloc[-1]
     final_market_return = test_data['market_cumulative_return'].iloc[-1]
-    
+
     # 최대 낙폭 (Maximum Drawdown) 계산
     def calculate_mdd(cumulative_returns):
         peak = cumulative_returns.expanding(min_periods=1).max()
@@ -106,12 +106,12 @@ def run_backtesting(data_path, model_path, scaler_path, output_dir):
     plt.ylabel('Cumulative Return')
     plt.legend()
     plt.grid(True)
-    
+
     # 그래프 파일로 저장
     output_plot_path = os.path.join(output_dir, 'backtest_results.png')
     plt.savefig(output_plot_path)
     print(f"백테스팅 결과 그래프를 '{output_plot_path}'에 저장했습니다.")
-    
+
     print("백테스팅 완료.")
 
 

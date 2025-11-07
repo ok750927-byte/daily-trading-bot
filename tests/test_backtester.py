@@ -68,4 +68,3 @@ def test_run_backtesting(tmp_path):
 
     # 결과 그래프 파일 존재 확인
     assert os.path.exists(os.path.join(str(out_dir), 'backtest_results.png'))
-

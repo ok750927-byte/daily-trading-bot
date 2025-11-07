@@ -29,14 +29,14 @@ def load_config():
         with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
             json.dump(default_config, f, indent=4)
         return default_config
-    
+
     with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def run_pipeline(action=None, force_train=False, auto_discover=False):
     """
     GUI 또는 다른 스크립트에서 호출할 수 있는 메인 파이프라인 함수.
-    
+
     Args:
         action (str): 'train', 'predict', 'all', 'discover' 중 하나.
         force_train (bool): True일 경우 강제로 모델을 재학습.
@@ -58,30 +58,30 @@ def run_pipeline(action=None, force_train=False, auto_discover=False):
             action = 'all'
 
     config = load_config()
-    
+
     # 자동 발굴 모드
     if auto_discover or action == 'discover':
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] '자동 종목 발굴' 작업을 시작합니다.")
-        
+
         # 유망 종목 발굴
         promising_stocks = discover_promising_stocks(max_candidates=30)
-        
+
         if not promising_stocks:
             print("[오류] 유망 종목을 찾지 못했습니다.")
             return
-        
+
         # 발굴된 종목을 config에 저장
         config['target_stocks'] = promising_stocks
         with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=4, ensure_ascii=False)
-        
+
         print(f"\n발굴된 {len(promising_stocks)}개 종목을 설정에 저장했습니다.")
         print(f"종목: {promising_stocks[:10]}{'...' if len(promising_stocks) > 10 else ''}")
-        
+
         # 발굴 후 자동으로 전체 파이프라인 실행
         action = 'all'
         force_train = True
-    
+
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] '{action}' 작업을 시작합니다.")
     print(f"설정: 대상 종목={config['target_stocks'][:5]}{'...' if len(config['target_stocks']) > 5 else ''} (총 {len(config['target_stocks'])}개), 데이터 시작일={config['start_date']}")
 

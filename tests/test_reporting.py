@@ -66,4 +66,3 @@ def test_generate_predictions_and_create_report(tmp_path):
     with open(report_path, 'r', encoding='utf-8') as f:
         html = f.read()
         assert '<h1' in html or 'AI 추천 종목' in html
-

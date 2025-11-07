@@ -51,4 +51,3 @@ def test_fetch_ohlcv_missing_columns():
             assert result is None
             mock_log.assert_called_once()
             assert "수집된 데이터에 필수 컬럼" in mock_log.call_args[0][0]
-

@@ -29,7 +29,7 @@ def generate_predictions(data_path, model_path, scaler_path, output_path, target
     # 예측을 위해 최근 1년치 데이터 사용
     end_date = datetime.now()
     start_date = end_date - timedelta(days=365)
-    
+
     print(f"데이터 전처리 중 ({start_date.strftime('%Y-%m-%d')} ~ {end_date.strftime('%Y-%m-%d')})...")
     # If a single preprocessed file (CSV or parquet) is provided, load it directly.
     if os.path.isfile(data_path) and data_path.lower().endswith('.csv'):
@@ -49,7 +49,7 @@ def generate_predictions(data_path, model_path, scaler_path, output_path, target
     if df is None or df.empty:
         print("[ERROR] 예측에 사용할 데이터를 준비하지 못했습니다.")
         return
-        
+
     # 3. 각 종목의 가장 마지막 데이터로 예측 수행
     predictions = []
     latest_data = df.groupby('code').last().reset_index()
@@ -61,10 +61,10 @@ def generate_predictions(data_path, model_path, scaler_path, output_path, target
         'bollinger_upper', 'bollinger_lower',
         'BPS', 'PER', 'PBR', 'EPS', 'DIV', 'DPS'
     ]
-    
+
     # 데이터프레임에 존재하는 피처만 선택 (예측 시점에 일부 피처가 없을 수 있음)
     available_features = [f for f in features if f in latest_data.columns]
-    
+
     # 피처 데이터 준비 및 결측치 확인
     X_latest = latest_data[available_features]
     if X_latest.isnull().values.any():
@@ -73,14 +73,14 @@ def generate_predictions(data_path, model_path, scaler_path, output_path, target
 
     X_latest_scaled = scaler.transform(X_latest)
     latest_data['prediction'] = model.predict(X_latest_scaled)
-    
+
     # 예측 확률 추가 (상승 확률)
     if hasattr(model, 'predict_proba'):
         proba = model.predict_proba(X_latest_scaled)
         latest_data['up_probability'] = proba[:, 1]  # 1(상승) 클래스의 확률
     else:
         latest_data['up_probability'] = 0.5  # 확률을 제공하지 않는 모델의 경우
-    
+
     # 4. '상승' 예측된 종목만 필터링
     recommended_stocks = latest_data[latest_data['prediction'] == 1]
 
@@ -93,46 +93,46 @@ def generate_predictions(data_path, model_path, scaler_path, output_path, target
     for _, row in recommended_stocks.iterrows():
         # 상승 이유 분석
         reasons = []
-        
+
         # RSI 분석
         if 'rsi' in row and pd.notna(row['rsi']):
             if row['rsi'] < 30:
                 reasons.append("RSI 과매도 구간 (반등 가능성)")
             elif 30 <= row['rsi'] <= 50:
                 reasons.append("RSI 적정 수준 (상승 여력)")
-        
+
         # 이동평균선 분석
         if 'ma5' in row and 'ma20' in row and pd.notna(row['ma5']) and pd.notna(row['ma20']):
             if row['ma5'] > row['ma20']:
                 reasons.append("단기 상승 추세 (MA5 > MA20)")
             if 'Close' in row and pd.notna(row['Close']) and row['Close'] > row['ma5']:
                 reasons.append("현재가가 단기 이평선 돌파")
-        
+
         # 거래량 분석
         if 'volume_ma5' in row and 'volume_ma20' in row and pd.notna(row['volume_ma5']) and pd.notna(row['volume_ma20']):
             if row['volume_ma5'] > row['volume_ma20'] * 1.2:
                 reasons.append("거래량 급증 (관심도 상승)")
-        
+
         # 볼린저 밴드 분석
         if 'bollinger_lower' in row and 'Close' in row and pd.notna(row['bollinger_lower']) and pd.notna(row['Close']):
             if row['Close'] < row['bollinger_lower']:
                 reasons.append("볼린저 밴드 하단 근접 (반등 기대)")
-        
+
         # MACD 분석
         if 'macd_signal' in row and pd.notna(row['macd_signal']):
             if row['macd_signal'] > 0:
                 reasons.append("MACD 신호 긍정적")
-        
+
         # 기본 이유가 없는 경우
         if not reasons:
             reasons.append("AI 모델이 종합적으로 상승 신호 감지")
-        
+
         # 예상 상승률 계산 (상승 확률 기반 추정)
         up_prob = row.get('up_probability', 0.5)
         # 확률을 상승률로 변환 (단순 선형 변환: 50% = 2%, 100% = 10%)
         estimated_gain = 2 + (up_prob - 0.5) * 16  # 50%일 때 2%, 100%일 때 10%
         estimated_gain = max(0, min(15, estimated_gain))  # 0~15% 범위로 제한
-        
+
         output['recommendations'].append({
             'code': row['code'],
             'last_close_price': row['Close'],

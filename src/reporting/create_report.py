@@ -25,7 +25,7 @@ def create_report(prediction_path, report_path):
     예측 결과 JSON 파일을 읽어 세련된 HTML 보고서를 생성합니다.
     """
     print("HTML 보고서 생성을 시작합니다...")
-    
+
     # 종목 코드를 종목명으로 변환하는 딕셔너리 (확장된 버전)
     stock_names = {
         '005930': '삼성전자',
@@ -105,14 +105,14 @@ def create_report(prediction_path, report_path):
         except Exception as e:
             print(f"[WARNING] KRX 종목 리스트 조회 실패: {e}")
             df_krx = None
-        
+
         # 신뢰도(up_probability) 높은 순으로 정렬
         sorted_recommendations = sorted(recommendations, key=lambda x: x.get('up_probability', 0), reverse=True)
-        
+
         rows = ""
         for i, item in enumerate(sorted_recommendations, 1):
             code = item.get('code', 'N/A')
-            
+
             # 종목명 조회 (실시간 or 딕셔너리)
             if df_krx is not None:
                 try:
@@ -122,15 +122,15 @@ def create_report(prediction_path, report_path):
                     stock_name = stock_names.get(code, code)
             else:
                 stock_name = stock_names.get(code, code)
-            
+
             price = item.get('last_close_price', 0)
             up_prob = item.get('up_probability', 0)
             estimated_gain = item.get('estimated_gain_rate', 0)
             reasons = item.get('reasons', [])
-            
+
             # 상승 이유를 HTML 리스트로 변환
             reasons_html = "<br>".join([f"• {reason}" for reason in reasons])
-            
+
             rows += f"""
             <tr>
                 <td style="text-align: center;">{i}</td>
@@ -278,7 +278,7 @@ def create_report(prediction_path, report_path):
         os.makedirs(os.path.dirname(report_path), exist_ok=True)
         with open(report_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
-        
+
         print(f"HTML 보고서를 '{report_path}'에 성공적으로 저장했습니다.")
 
     except Exception as e:

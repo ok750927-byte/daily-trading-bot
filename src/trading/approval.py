@@ -1,141 +1,198 @@
-"""
-Approval manager for non-blocking operator approvals.
-
-Features:
-- submit requests (returns request_id)
-- list pending requests
-- approve/reject requests (writes audit log and notifies handler)
-
-This is intentionally simple and thread-safe using a background worker and a
-callable handler that will be invoked when a request is approved.
-"""
 from __future__ import annotations
+
+import json
 import threading
 import time
-import json
-import os
 import uuid
-from typing import Callable, Dict, Optional
 import os
-import threading
-import requests
+from pathlib import Path
+from typing import Callable, Dict, Optional, List, Any
 
-AUDIT_PATH = os.path.join(os.getcwd(), 'results', 'approval_audit.jsonl')
-QUEUE_PATH = os.path.join(os.getcwd(), 'results', 'approval_queue.jsonl')
-os.makedirs(os.path.dirname(AUDIT_PATH), exist_ok=True)
+ROOT = Path(__file__).parent.parent
+RESULTS_DIR = ROOT / 'results'
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+PENDING_FILE = RESULTS_DIR / 'pending_approvals.jsonl'
+AUDIT_FILE = RESULTS_DIR / 'approval_audit.jsonl'
+QUEUE_FILE = RESULTS_DIR / 'approval_queue.jsonl'
+
+
+# helper: mask sensitive fields when exposing or writing audit
+def _mask_signal(sig: Any) -> Any:
+    if not isinstance(sig, dict):
+        return sig
+    out = {}
+    for k, v in sig.items():
+        lk = k.lower()
+        if any(x in lk for x in ('secret', 'token', 'password', 'key', 'app_secret')):
+            out[k] = '***MASKED***'
+        elif 'account' in lk or ('no' in lk and isinstance(v, (str, int))):
+            s = str(v)
+            if len(s) > 4:
+                out[k] = s[:2] + '...' + s[-2:]
+            else:
+                out[k] = '***'
+        else:
+            out[k] = v
+    return out
 
 
 class ApprovalManager:
     def __init__(self):
         self._lock = threading.Lock()
-        self._pending: Dict[str, dict] = {}
+        # pending: approval_id -> record
+        self._pending: Dict[str, Dict] = {}
         self._handler: Optional[Callable[[dict], None]] = None
+        # load existing pending approvals (last state win)
+        try:
+            if PENDING_FILE.exists():
+                with open(PENDING_FILE, 'r', encoding='utf-8') as fh:
+                    for line in fh:
+                        try:
+                            rec = json.loads(line)
+                            aid = rec.get('approval_id') or rec.get('id')
+                            if not aid:
+                                continue
+                            # prefer the latest record for this id
+                            self._pending[aid] = rec
+                        except Exception:
+                            continue
+        except Exception:
+            # keep going even if load fails
+            pass
 
+    # ---- registration / callback ----
     def register_handler(self, fn: Callable[[dict], None]):
-        """Register a callable that will be invoked with the request dict when a request is approved."""
+        """Register a callable invoked asynchronously with the approved record."""
         self._handler = fn
 
-    def submit(self, sig: dict) -> str:
-        req_id = str(uuid.uuid4())
+    # ---- core API ----
+    def submit(self, payload: Dict) -> str:
+        """Submit an approval request. Payload can be an 'order' or a 'signal' dict.
+        Returns approval_id (string).
+        """
+        aid = str(uuid.uuid4())
         rec = {
-            'id': req_id,
-            'signal': sig,
+            'approval_id': aid,
             'timestamp': int(time.time()),
-            'status': 'pending'
+            'order': payload,
+            'status': 'pending',
+            'operator': None,
+            'note': None,
         }
         with self._lock:
-            self._pending[req_id] = rec
-        # persist queue entry
+            self._pending[aid] = rec
+        # persist queue and pending file
         try:
-            with open(QUEUE_PATH, 'a', encoding='utf-8') as fh:
+            with open(QUEUE_FILE, 'a', encoding='utf-8') as fh:
+                fh.write(json.dumps({'id': aid, 'signal': _mask_signal(payload), 'timestamp': rec['timestamp']}, ensure_ascii=False) + '\n')
+        except Exception:
+            pass
+        try:
+            with open(PENDING_FILE, 'a', encoding='utf-8') as fh:
                 fh.write(json.dumps(rec, ensure_ascii=False) + '\n')
         except Exception:
             pass
-        # notify via webhook if configured (do not include raw secrets)
+
+        # webhook notification (masked)
         try:
             webhook = os.environ.get('APPROVAL_WEBHOOK_URL')
             if webhook:
-                payload = {
-                    'event': 'approval_requested',
-                    'id': req_id,
-                    'signal': {k: ('***MASKED***' if any(x in k.lower() for x in ('secret','token','password','key')) else v) for k,v in (sig.items() if isinstance(sig, dict) else [])},
-                    'timestamp': rec['timestamp']
-                }
-                # fire-and-forget to avoid blocking submit
-                threading.Thread(target=lambda: requests.post(webhook, json=payload, timeout=5), daemon=True).start()
+                payload_masked = {k: ('***MASKED***' if any(x in k.lower() for x in ('secret','token','password','key')) else v) for k,v in (payload.items() if isinstance(payload, dict) else [])}
+                payload_body = {'event': 'approval_requested', 'id': aid, 'signal': payload_masked, 'timestamp': rec['timestamp']}
+                # fire-and-forget
+                import threading, requests
+                threading.Thread(target=lambda: requests.post(webhook, json=payload_body, timeout=5), daemon=True).start()
         except Exception:
             pass
-        return req_id
 
-    def list_pending(self) -> Dict[str, dict]:
-        with self._lock:
-            return dict(self._pending)
+        return aid
 
-    def approve(self, req_id: str, approver: Optional[str] = None, approve: bool = True):
+    def list_pending(self) -> List[Dict]:
+        """Return list of pending records (shallow copies)."""
         with self._lock:
-            rec = self._pending.get(req_id)
+            return [dict(r) for r in self._pending.values() if r.get('status') == 'pending']
+
+    def check_approval(self, approval_id: str) -> str:
+        with self._lock:
+            rec = self._pending.get(approval_id)
+            if not rec:
+                return 'unknown'
+            return rec.get('status', 'pending')
+
+    def approve(self, approval_id: str, approver: Optional[str] = None, approve: bool = True, operator: Optional[str] = None, note: Optional[str] = None) -> bool:
+        """Approve or reject a pending request. Backwards-compatible signature:
+        - realtime_trader style: approve(req_id, approver, approve=True)
+        - GUI style: approve(req_id, operator=..., note=...)
+        """
+        with self._lock:
+            rec = self._pending.get(approval_id)
             if not rec:
                 return False
             rec['status'] = 'approved' if approve else 'rejected'
-            rec['approved_by'] = approver
+            # normalize actor fields
+            if approver:
+                rec['approved_by'] = approver
+            if operator:
+                rec['operator'] = operator
+            if note:
+                rec['note'] = note
             rec['approved_at'] = int(time.time())
-        # write audit
-        # mask sensitive fields before writing audit
-        def _mask_signal(sig: dict) -> dict:
-            if not isinstance(sig, dict):
-                return sig
-            out = {}
-            for k, v in sig.items():
-                lk = k.lower()
-                if any(x in lk for x in ('secret', 'token', 'password', 'key', 'app_secret')):
-                    out[k] = '***MASKED***'
-                elif 'account' in lk or 'no' in lk and isinstance(v, (str, int)):
-                    s = str(v)
-                    if len(s) > 4:
-                        out[k] = s[:2] + '...' + s[-2:]
-                    else:
-                        out[k] = '***'
-                else:
-                    out[k] = v
-            return out
-
-        audit = {
-            'id': req_id,
-            'signal': _mask_signal(rec.get('signal')),
-            'approved': bool(approve),
-            'approver': approver,
-            'ts': rec.get('approved_at')
-        }
+        # append audit and pending update
         try:
-            with open(AUDIT_PATH, 'a', encoding='utf-8') as fh:
+            with open(AUDIT_FILE, 'a', encoding='utf-8') as fh:
+                audit = {
+                    'id': approval_id,
+                    'signal': _mask_signal(rec.get('order')),
+                    'approved': rec['status'] == 'approved',
+                    'approver': approver or operator,
+                    'ts': rec.get('approved_at')
+                }
                 fh.write(json.dumps(audit, ensure_ascii=False) + '\n')
         except Exception:
             pass
+        try:
+            with open(PENDING_FILE, 'a', encoding='utf-8') as fh:
+                fh.write(json.dumps(rec, ensure_ascii=False) + '\n')
+        except Exception:
+            pass
 
-        # notify handler asynchronously if approved
-        if approve and self._handler:
+        # call handler if approved
+        if rec['status'] == 'approved' and self._handler:
+            # For backward compatibility with callers that expect 'signal'
+            # key (e.g., RealtimeTrader._on_approved_record), provide a copy
+            # where 'signal' maps to the original payload if needed.
+            arg = dict(rec)
+            if 'signal' not in arg and 'order' in arg:
+                arg['signal'] = arg.get('order')
+            # prefer synchronous call to ensure handler runs in tests; fall back to thread
             try:
-                threading.Thread(target=self._handler, args=(rec,), daemon=True).start()
+                self._handler(arg)
             except Exception:
-                pass
+                try:
+                    threading.Thread(target=self._handler, args=(arg,), daemon=True).start()
+                except Exception:
+                    pass
 
-        # send webhook notification on decision
+        # webhook
         try:
             webhook = os.environ.get('APPROVAL_WEBHOOK_URL')
             if webhook:
-                payload = {
-                    'event': 'approval_decision',
-                    'id': req_id,
-                    'approved': bool(approve),
-                    'approver': approver,
-                    'timestamp': rec.get('approved_at')
-                }
+                payload = {'event': 'approval_decision', 'id': approval_id, 'approved': rec['status'] == 'approved', 'approver': approver or operator, 'timestamp': rec.get('approved_at')}
+                import threading, requests
                 threading.Thread(target=lambda: requests.post(webhook, json=payload, timeout=5), daemon=True).start()
         except Exception:
             pass
 
-        # remove from pending after decision
+        # remove from pending
         with self._lock:
-            self._pending.pop(req_id, None)
+            self._pending.pop(approval_id, None)
 
         return True
+
+    def reject(self, approval_id: str, operator: Optional[str] = None, note: Optional[str] = None) -> bool:
+        # convenience wrapper
+        return self.approve(approval_id, operator=operator, approve=False, note=note)
+
+
+# module-level singleton
+manager = ApprovalManager()

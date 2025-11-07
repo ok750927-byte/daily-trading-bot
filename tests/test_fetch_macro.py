@@ -9,14 +9,14 @@ def test_get_macro_data_success():
     """거시경제 지표 수집 성공 케이스 테스트"""
     # 모의 데이터프레임 생성
     mock_kospi_df = pd.DataFrame(
-        {'Close': [3000, 3010]}, 
+        {'Close': [3000, 3010]},
         index=pd.DatetimeIndex(['2023-01-02', '2023-01-03'], name='Date')
     )
     mock_usd_df = pd.DataFrame(
-        {'Close': [1200, 1210]}, 
+        {'Close': [1200, 1210]},
         index=pd.DatetimeIndex(['2023-01-02', '2023-01-03'], name='Date')
     )
-    
+
     symbol_map = {'KS11': 'KOSPI', 'USD/KRW': 'USD_KRW'}
 
     # fdr.DataReader를 모의 객체로 패치
@@ -38,7 +38,7 @@ def test_get_macro_data_success():
 def test_get_macro_data_partial_failure():
     """일부 지표 수집 실패 시, 성공한 지표만으로 데이터프레임을 생성하는지 테스트"""
     mock_kospi_df = pd.DataFrame(
-        {'Close': [3000, 3010]}, 
+        {'Close': [3000, 3010]},
         index=pd.DatetimeIndex(['2023-01-02', '2023-01-03'], name='Date')
     )
     # 유효하지 않은 심볼에 대해서는 빈 데이터프레임 반환
@@ -53,10 +53,10 @@ def test_get_macro_data_partial_failure():
 
         with patch('data.fetch_macro.logger.warning') as mock_log:
             result_df = fetch_macro.get_macro_data(symbol_map, '2023-01-02', '2023-01-03')
-            
+
             # 경고 로그가 한 번 호출되었는지 확인
             mock_log.assert_called_once_with("'INVALID'에 대한 데이터를 찾을 수 없습니다.")
-            
+
             # 결과는 KOSPI 데이터만 포함해야 함
             assert not result_df.empty
             assert 'KOSPI' in result_df.columns
@@ -87,13 +87,13 @@ def test_get_macro_data_ffill():
     # 날짜가 서로 다른 모의 데이터프레임
     mock_df1 = pd.DataFrame({'Close': [100]}, index=pd.DatetimeIndex(['2023-01-02'], name='Date'))
     mock_df2 = pd.DataFrame({'Close': [200]}, index=pd.DatetimeIndex(['2023-01-03'], name='Date'))
-    
+
     symbol_map = {'SYM1': 'A', 'SYM2': 'B'}
 
     with patch('data.fetch_macro.fdr.DataReader') as mock_datareader:
         mock_datareader.side_effect = [mock_df1, mock_df2]
-        
+
         result_df = fetch_macro.get_macro_data(symbol_map, '2023-01-02', '2023-01-03')
-        
+
         # 2023-01-03의 'A' 컬럼 값이 2023-01-02의 값으로 채워졌는지 확인
         assert result_df.loc[pd.Timestamp('2023-01-03'), 'A'] == 100

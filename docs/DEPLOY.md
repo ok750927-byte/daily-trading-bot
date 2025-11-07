@@ -43,4 +43,3 @@ Security notes
 - Always enable `BROKER_WEBHOOK_SECRET` and verify signatures.
 - Use HTTPS/TLS between broker and your webhook endpoint.
 - Do not expose the webhook port publicly without protection (WAF, IP allowlist).
-

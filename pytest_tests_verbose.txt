@@ -130,13 +130,13 @@ tmp_path = WindowsPath('C:/Users/cho/AppData/Local/Temp/pytest-of-cho/pytest-33/
         ])
         data_file = tmp_path / 'preprocessed_data.csv'
         df.to_csv(str(data_file), index=False)
-    
+
         # 2) 더미 스케일러/모델 생성 (모듈 스코프에 정의된 DummyModel/DummyScaler 사용)
         model_path = tmp_path / 'model.joblib'
         scaler_path = tmp_path / 'scaler.joblib'
         joblib.dump(DummyModel(), str(model_path))
         joblib.dump(DummyScaler(), str(scaler_path))
-    
+
         # 3) generate_predictions 실행
         output_path = str(tmp_path / 'predictions.json')
         try:
@@ -149,7 +149,7 @@ tmp_path = WindowsPath('C:/Users/cho/AppData/Local/Temp/pytest-of-cho/pytest-33/
             )
         except Exception as e:
             pytest.fail(f"generate_predictions 실행 중 예외 발생: {e}")
-    
+
 >       assert os.path.exists(output_path), "예측 결과 파일이 생성되지 않았습니다."
 E       AssertionError: 예측 결과 파일이 생성되지 않았습니다.
 E       assert False

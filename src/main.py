@@ -19,9 +19,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="주식 자동매매 AI 봇")
     parser.add_argument(
-        '--action', 
-        type=str, 
-        default='all', 
+        '--action',
+        type=str,
+        default='all',
         choices=['train', 'predict', 'all'],
         help="수행할 작업을 선택합니다: 'train' (모델 학습), 'predict' (예측 및 보고), 'all' (전체 프로세스)"
     )
@@ -74,7 +74,7 @@ def main():
         if not os.path.exists(MODEL_PATH):
             print("[ERROR] 모델 파일이 없습니다. 먼저 '--action train'을 실행하여 모델을 학습시켜주세요.")
             sys.exit(1)
-            
+
         print("\n----- 3. 예측 생성 시작 -----")
         generate_predictions(
             model_path=MODEL_PATH,

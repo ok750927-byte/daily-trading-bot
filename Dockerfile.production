@@ -1,0 +1,62 @@
+# AI Trading Bot - 운영용 Docker 이미지
+FROM python:3.12-slim
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 시스템 패키지 설치
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    wget \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 의존성 복사 및 설치
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 추가 운영 패키지 설치
+RUN pip install --no-cache-dir \
+    gunicorn \
+    supervisor \
+    psycopg2-binary \
+    redis
+
+# 애플리케이션 코드 복사
+COPY . .
+
+# 디렉토리 생성
+RUN mkdir -p /app/logs /app/data /app/models /app/results
+
+# 환경변수 설정
+ENV PYTHONPATH=/app
+ENV ENVIRONMENT=production
+ENV LOG_LEVEL=INFO
+
+# 포트 노출
+EXPOSE 8501 9090
+
+# 헬스체크 스크립트 추가
+COPY docker/healthcheck.py /usr/local/bin/healthcheck.py
+RUN chmod +x /usr/local/bin/healthcheck.py
+
+# 헬스체크 설정
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python /usr/local/bin/healthcheck.py
+
+# Supervisor 설정 복사
+COPY docker/supervisord.conf /etc/supervisor/supervisord.conf
+
+# 엔트리포인트 스크립트
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# 비root 사용자 생성
+RUN useradd --create-home --shell /bin/bash trading
+RUN chown -R trading:trading /app
+USER trading
+
+# 엔트리포인트 설정
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
