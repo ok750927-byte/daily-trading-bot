@@ -20,7 +20,7 @@ def pytest_sessionfinish(session, exitstatus):
         pass
 
 
-def pytest_ignore_collect(path, config):
+def pytest_ignore_collect(collection_path, config):
     """Ignore GUI-related test modules if PyQt6 is not installed.
 
     Some tests require PyQt6 (GUI integration). In CI or headless test
@@ -31,7 +31,12 @@ def pytest_ignore_collect(path, config):
     """
     try:
         # Only apply this rule to likely GUI test files
-        name = path.basename.lower()
+        # collection_path is pathlib.Path in newer pytest; use .name for filename
+        try:
+            name = collection_path.name.lower()
+        except Exception:
+            # fall back to legacy py.path.local attribute
+            name = getattr(collection_path, 'basename', str(collection_path)).lower()
         if 'gui' in name or 'pyqt' in name:
             import importlib
             importlib.import_module('PyQt6')
