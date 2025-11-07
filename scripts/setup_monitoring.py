@@ -252,9 +252,13 @@ class MonitoringSetup:
         return compose_file
 
     def setup_grafana_datasource(self, grafana_url="http://localhost:3000",
-                                admin_user="admin", admin_password="admin123"):
+                                admin_user="admin", admin_password=None):
         """Grafana 데이터소스 설정"""
         try:
+            # Avoid hardcoded credentials: allow caller to pass admin_password or
+            # read from environment variable GF_SECURITY_ADMIN_PASSWORD at runtime.
+            if admin_password is None:
+                admin_password = os.environ.get('GF_SECURITY_ADMIN_PASSWORD', 'changeme')
             # Grafana API를 통한 데이터소스 추가
             datasource_config = {
                 "name": "Prometheus",
