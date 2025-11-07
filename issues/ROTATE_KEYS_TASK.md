@@ -77,7 +77,7 @@ Summary
  ------------------------
  - Create/update a GitHub Actions secret (example):
 	 ```cmd
-	 gh secret set SECRET_NAME --repo ok750927-byte/daily-trading-bot --body "<value>"
+	 gh secret set SECRET_NAME --repo ok750927-byte/daily-trading-bot --body "<REDACTED>"
 	 ```
  - Run the provided update script (if executable):
 	 ```bash
