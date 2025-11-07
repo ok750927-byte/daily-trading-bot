@@ -73,3 +73,13 @@ desktop.ini
 # Logs and results
 *.log
 results/
+
+# Generated artifacts and CI outputs (ignore heavy build and test artifacts)
+# PyInstaller / build outputs
+build/daily_trading_gui/
+build/**/EXE-*
+dist_pyinstaller_console_merge/
+
+# Pytest/JUnit outputs produced during CI runs
+pytest_junit_results*.xml
+pytest_tests_out.txt
