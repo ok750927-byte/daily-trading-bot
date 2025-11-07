@@ -45,7 +45,7 @@ Summary
  - Update CI secret (example using gh):
 	 ```cmd
 	 gh secret set KIS_APP_KEY --body "<new-key>" --repo ok750927-byte/daily-trading-bot
-	 gh secret set KIS_APP_SECRET --body "<new-secret>" --repo ok750927-byte/daily-trading-bot
+	 gh secret set KIS_APP_SECRET --body "<REDACTED>" --repo ok750927-byte/daily-trading-bot
 	 ```
  - Update staging config and run smoke tests.
 

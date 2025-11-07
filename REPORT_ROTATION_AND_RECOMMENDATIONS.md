@@ -29,7 +29,7 @@
 - GitHub Secrets 업데이트(예):
 ```cmd
 gh secret set KIS_APP_KEY --repo ok750927-byte/daily-trading-bot --body "<new-key>"
-gh secret set KIS_APP_SECRET --repo ok750927-byte/daily-trading-bot --body "<new-secret>"
+gh secret set KIS_APP_SECRET --repo ok750927-byte/daily-trading-bot --body "<REDACTED>"
 ```
 - 제공자 회수 예시: 브로커 콘솔 → revoke API key → 기록(타임스탬프)
 - 로컬 임시 토큰 사용 시 주의: 토큰은 파일에 임시 저장 후 즉시 삭제(`del gh_token.txt`).

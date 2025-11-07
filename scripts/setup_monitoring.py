@@ -287,9 +287,11 @@ class MonitoringSetup:
             return False
 
     def import_dashboard(self, grafana_url="http://localhost:3000",
-                        admin_user="admin", admin_password="admin123"):
+                        admin_user="admin", admin_password=None):
         """대시보드 임포트"""
         try:
+            if admin_password is None:
+                admin_password = os.environ.get('GF_SECURITY_ADMIN_PASSWORD', 'changeme')
             dashboard_file = self.config_dir / "trading_dashboard.json"
             if not dashboard_file.exists():
                 print("대시보드 파일이 없습니다. 먼저 create_grafana_dashboard()를 실행하세요.")
