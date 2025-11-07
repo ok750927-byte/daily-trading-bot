@@ -8,7 +8,7 @@ from pathlib import Path
 
 def generate_dashboard_html():
     """운영 현황 HTML 대시보드 생성"""
-    
+
     html_content = """
 <!DOCTYPE html>
 <html lang="ko">
@@ -22,20 +22,20 @@ def generate_dashboard_html():
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             line-height: 1.6;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .header {
             background: white;
             border-radius: 12px;
@@ -44,27 +44,27 @@ def generate_dashboard_html():
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: center;
         }
-        
+
         .header h1 {
             color: #2c3e50;
             margin-bottom: 10px;
             font-size: 2.5em;
         }
-        
+
         .status-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-        
+
         .status-card {
             background: white;
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        
+
         .status-card h3 {
             color: #2c3e50;
             margin-bottom: 15px;
@@ -72,7 +72,7 @@ def generate_dashboard_html():
             align-items: center;
             gap: 10px;
         }
-        
+
         .metric {
             display: flex;
             justify-content: space-between;
@@ -81,22 +81,22 @@ def generate_dashboard_html():
             padding: 8px 0;
             border-bottom: 1px solid #ecf0f1;
         }
-        
+
         .metric:last-child {
             border-bottom: none;
         }
-        
+
         .metric-value {
             font-weight: bold;
             color: #27ae60;
         }
-        
+
         .service-links {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
-        
+
         .link-card {
             background: #3498db;
             color: white;
@@ -106,31 +106,31 @@ def generate_dashboard_html():
             text-align: center;
             transition: transform 0.2s;
         }
-        
+
         .link-card:hover {
             transform: translateY(-2px);
             background: #2980b9;
         }
-        
+
         .timestamp {
             text-align: center;
             margin-top: 20px;
             color: #7f8c8d;
         }
-        
+
         .success { color: #27ae60; }
         .warning { color: #f39c12; }
         .error { color: #e74c3c; }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
             }
-            
+
             .header h1 {
                 font-size: 2em;
             }
-            
+
             .status-grid {
                 grid-template-columns: 1fr;
             }
@@ -141,23 +141,23 @@ def generate_dashboard_html():
         setTimeout(() => {
             location.reload();
         }, 30000);
-        
+
         // 실시간 시간 업데이트
         function updateTime() {
             const now = new Date();
             document.getElementById('current-time').textContent = now.toLocaleString('ko-KR');
         }
-        
+
         setInterval(updateTime, 1000);
         window.onload = updateTime;
-        
+
         // 서비스 상태 체크
         async function checkServices() {
             const services = [
                 { name: 'metrics', url: 'http://localhost:8000/health', element: 'metrics-status' },
                 { name: 'dashboard', url: 'http://localhost:8501', element: 'dashboard-status' }
             ];
-            
+
             for (const service of services) {
                 try {
                     const response = await fetch(service.url, { mode: 'no-cors' });
@@ -167,7 +167,7 @@ def generate_dashboard_html():
                 }
             }
         }
-        
+
         // 페이지 로드 시 서비스 체크
         window.onload = () => {
             updateTime();
@@ -182,7 +182,7 @@ def generate_dashboard_html():
             <p>프로덕션 운영 현황 대시보드</p>
             <p><strong>배포 완료:</strong> 2025년 11월 4일</p>
         </div>
-        
+
         <div class="status-grid">
             <div class="status-card">
                 <h3>🎯 시스템 상태</h3>
@@ -203,7 +203,7 @@ def generate_dashboard_html():
                     <span id="current-time" class="metric-value">로딩 중...</span>
                 </div>
             </div>
-            
+
             <div class="status-card">
                 <h3>📊 운영 메트릭</h3>
                 <div class="metric">
@@ -223,7 +223,7 @@ def generate_dashboard_html():
                     <span class="metric-value">30초</span>
                 </div>
             </div>
-            
+
             <div class="status-card">
                 <h3>🔧 배포 정보</h3>
                 <div class="metric">
@@ -244,7 +244,7 @@ def generate_dashboard_html():
                 </div>
             </div>
         </div>
-        
+
         <div class="status-card">
             <h3>🔗 서비스 링크</h3>
             <div class="service-links">
@@ -266,7 +266,7 @@ def generate_dashboard_html():
                 </a>
             </div>
         </div>
-        
+
         <div class="timestamp">
             <p>🕒 마지막 업데이트: <span id="current-time"></span></p>
             <p>⚡ 자동 새로고침: 30초마다</p>
@@ -275,17 +275,17 @@ def generate_dashboard_html():
 </body>
 </html>
 """
-    
+
     # HTML 파일 저장
     dashboard_file = Path("results/production_dashboard.html")
     dashboard_file.parent.mkdir(exist_ok=True)
-    
+
     with open(dashboard_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    
+
     print(f"✅ 운영 대시보드 생성: {dashboard_file}")
     print(f"🌐 접속 URL: file:///{dashboard_file.absolute()}")
-    
+
     return dashboard_file
 
 if __name__ == "__main__":

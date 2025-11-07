@@ -60,7 +60,7 @@ def load_performance_data():
                 "avg_profit_per_trade": 0,
                 "sharpe_ratio": 0
             }
-        
+
         # 거래 로그
         trade_logs = []
         log_paths = [
@@ -68,7 +68,7 @@ def load_performance_data():
             "results/realtime_trade_log.jsonl",
             "results/simulation_result.json"
         ]
-        
+
         for log_path in log_paths:
             if os.path.exists(log_path):
                 try:
@@ -86,9 +86,9 @@ def load_performance_data():
                                 trade_logs.extend(data)
                 except:
                     continue
-        
+
         return summary, trade_logs
-        
+
     except Exception as e:
         st.error(f"데이터 로드 오류: {e}")
         return {}, []
@@ -120,7 +120,7 @@ with col1:
 
 with col2:
     st.metric(
-        label="📊 승률", 
+        label="📊 승률",
         value=f"{summary.get('win_rate', 0):.1f}%",
         delta=f"총 {summary.get('total_trades', 0)}거래"
     )
@@ -146,19 +146,19 @@ col1, col2 = st.columns([2, 1])
 
 with col1:
     st.subheader("📈 거래 성과 추이")
-    
+
     if trade_logs:
         # 거래 로그를 DataFrame으로 변환
         df_trades = pd.DataFrame(trade_logs)
-        
+
         # 날짜 컬럼 처리
         if 'timestamp' in df_trades.columns:
             df_trades['timestamp'] = pd.to_datetime(df_trades['timestamp'])
             df_trades = df_trades.sort_values('timestamp')
-            
+
             # 누적 손익 계산
             df_trades['cumulative_pnl'] = df_trades.get('pnl', 0).fillna(0).cumsum()
-            
+
             # 차트 생성
             fig = make_subplots(
                 rows=2, cols=1,
@@ -166,7 +166,7 @@ with col1:
                 vertical_spacing=0.1,
                 row_heights=[0.7, 0.3]
             )
-            
+
             # 누적 손익 라인 차트
             fig.add_trace(
                 go.Scatter(
@@ -179,7 +179,7 @@ with col1:
                 ),
                 row=1, col=1
             )
-            
+
             # 거래량 히스토그램
             fig.add_trace(
                 go.Histogram(
@@ -190,27 +190,27 @@ with col1:
                 ),
                 row=2, col=1
             )
-            
+
             fig.update_layout(
                 height=500,
                 showlegend=True,
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)'
             )
-            
+
             fig.update_xaxes(gridcolor='rgba(128,128,128,0.2)')
             fig.update_yaxes(gridcolor='rgba(128,128,128,0.2)')
-            
+
             st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("아직 거래 데이터가 없습니다.")
 
 with col2:
     st.subheader("🎯 AI 예측 결과")
-    
+
     if predictions and 'recommendations' in predictions:
         st.write(f"**예측 일자:** {predictions.get('prediction_date', 'N/A')}")
-        
+
         for i, rec in enumerate(predictions['recommendations'][:3]):  # 상위 3개만 표시
             with st.container():
                 st.markdown(f"""
@@ -219,13 +219,13 @@ with col2:
                 - 상승확률: {rec['up_probability']}%
                 - 예상수익률: +{rec['estimated_gain_rate']:.1f}%
                 """)
-                
+
                 # 신호 강도 게이지
                 strength = rec['up_probability'] / 100
                 color = '#00ff88' if strength > 0.6 else '#ffaa00' if strength > 0.4 else '#ff6b6b'
-                
+
                 st.markdown(f"""
-                <div style="background: linear-gradient(90deg, {color} {strength*100}%, #333 {strength*100}%); 
+                <div style="background: linear-gradient(90deg, {color} {strength*100}%, #333 {strength*100}%);
                            height: 10px; border-radius: 5px; margin: 5px 0;"></div>
                 """, unsafe_allow_html=True)
     else:
@@ -238,11 +238,11 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📋 최근 거래 내역")
-    
+
     if trade_logs:
         # 최근 10개 거래 표시
         recent_trades = sorted(trade_logs, key=lambda x: x.get('timestamp', ''), reverse=True)[:10]
-        
+
         display_trades = []
         for trade in recent_trades:
             display_trades.append({
@@ -253,7 +253,7 @@ with col1:
                 '가격': f"{trade.get('price', 0):,}원",
                 '손익': f"{trade.get('pnl', 0):+,.0f}원" if trade.get('pnl') else '-'
             })
-        
+
         if display_trades:
             st.dataframe(
                 pd.DataFrame(display_trades),
@@ -265,22 +265,22 @@ with col1:
 
 with col2:
     st.subheader("📊 종목별 성과 분석")
-    
+
     if trade_logs:
         # 종목별 수익률 계산
         stock_performance = {}
-        
+
         for trade in trade_logs:
             stock_code = trade.get('stock_code', '')
             pnl = trade.get('pnl', 0)
-            
+
             if stock_code and pnl:
                 if stock_code not in stock_performance:
                     stock_performance[stock_code] = {'pnl': 0, 'trades': 0}
-                
+
                 stock_performance[stock_code]['pnl'] += pnl
                 stock_performance[stock_code]['trades'] += 1
-        
+
         if stock_performance:
             # 상위/하위 5개 종목
             sorted_stocks = sorted(
@@ -288,10 +288,10 @@ with col2:
                 key=lambda x: x[1]['pnl'],
                 reverse=True
             )
-            
+
             stock_names = [item[0] for item in sorted_stocks[:5]]
             stock_pnls = [item[1]['pnl'] for item in sorted_stocks[:5]]
-            
+
             fig = go.Figure()
             fig.add_trace(go.Bar(
                 x=stock_names,
@@ -300,7 +300,7 @@ with col2:
                 text=[f'{pnl:+,.0f}원' for pnl in stock_pnls],
                 textposition='auto',
             ))
-            
+
             fig.update_layout(
                 title="종목별 손익",
                 xaxis_title="종목코드",
@@ -309,7 +309,7 @@ with col2:
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)'
             )
-            
+
             st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("종목별 데이터가 없습니다.")
@@ -323,7 +323,7 @@ with col1:
     st.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 with col2:
-    st.markdown("**🔄 시스템 상태**") 
+    st.markdown("**🔄 시스템 상태**")
     status_color = "🟢" if trade_logs else "🟡"
     status_text = "활성" if trade_logs else "대기중"
     st.write(f"{status_color} {status_text}")
@@ -354,14 +354,14 @@ st.markdown("""
 # 디버그 정보 (개발용)
 if st.sidebar.checkbox("디버그 정보 표시"):
     st.sidebar.write("**데이터 파일 상태:**")
-    
+
     files_to_check = [
         "results/performance_summary.json",
-        "results/predictions.json", 
+        "results/predictions.json",
         "results/trade_log.json",
         "results/simulation_result.json"
     ]
-    
+
     for file_path in files_to_check:
         exists = "✅" if os.path.exists(file_path) else "❌"
         st.sidebar.write(f"{exists} {file_path}")

@@ -29,7 +29,7 @@ def run_collection(target_stocks: list, start_date: str, end_date: str, output_p
 
     # --- 1. 개별 데이터 수집 ---
     print("[1/4] 주가 데이터 수집 중...")
-    
+
     all_price_df = []
     for code in target_stocks:
         df = fetch_stock_prices(code, start_date, end_date)
@@ -49,7 +49,7 @@ def run_collection(target_stocks: list, start_date: str, end_date: str, output_p
     # 펀더멘털 데이터는 연도별로 제공되므로, 시작 연도와 종료 연도를 계산합니다.
     start_year = pd.to_datetime(start_date).year
     end_year = pd.to_datetime(end_date).year
-    
+
     all_fundamentals_df = []
     for year in range(start_year, end_year + 1):
         # 펀더멘털 데이터는 특정 날짜 기준으로 조회해야 하므로, 각 연도의 마지막 영업일을 사용합니다.
@@ -87,7 +87,7 @@ def run_collection(target_stocks: list, start_date: str, end_date: str, output_p
 
     # --- 2. 데이터 병합 ---
     print("[4/4] 데이터 병합 및 최종 전처리 중...")
-    
+
     # 1. 기준 데이터프레임 준비
     merged_df = price_df.copy()
     merged_df['Date'] = pd.to_datetime(merged_df['Date'])
@@ -99,7 +99,7 @@ def run_collection(target_stocks: list, start_date: str, end_date: str, output_p
             merged_df['Year'] = merged_df['Date'].dt.year
             fundamentals_df['Date'] = pd.to_datetime(fundamentals_df['Date'])
             fundamentals_df['Year'] = fundamentals_df['Date'].dt.year
-            
+
             # 'Code'와 'Year'를 기준으로 병합
             # 펀더멘털 데이터의 'Date' 컬럼은 연도 정보만 담고 있으므로, 병합 후 제거
             merged_df = pd.merge(merged_df, fundamentals_df.drop(columns=['Date']), on=['Code', 'Year'], how='left')
@@ -118,7 +118,7 @@ def run_collection(target_stocks: list, start_date: str, end_date: str, output_p
             if 'Date' not in macro_df.columns:
                 macro_df.reset_index(inplace=True)
             macro_df['Date'] = pd.to_datetime(macro_df['Date'])
-            
+
             # 'Date'를 기준으로 병합
             merged_df = pd.merge(merged_df, macro_df, on='Date', how='left')
             print("거시 경제 데이터 병합 완료.")
@@ -149,7 +149,7 @@ if __name__ == '__main__':
     TEST_START_DATE = "2022-01-01"
     TEST_END_DATE = datetime.now().strftime('%Y-%m-%d')
     TEST_OUTPUT_PATH = os.path.join(PROJ_DIR, 'data', 'preprocessed_data_test.parquet')
-    
+
     run_collection(
         start_date=TEST_START_DATE,
         end_date=TEST_END_DATE,

@@ -34,13 +34,13 @@ def get_macro_data(symbol_map: Dict[str, str], start: str, end: str) -> Optional
         return None
 
     logger.info(f"거시경제 지표 수집을 시작합니다 (기간: {start}~{end}).")
-    
+
     all_dfs = []
     for symbol, col_name in symbol_map.items():
         try:
             logger.debug(f"'{symbol}' 데이터 수집 중...")
             df = fdr.DataReader(symbol, start, end)
-            
+
             if df.empty:
                 logger.warning(f"'{symbol}'에 대한 데이터를 찾을 수 없습니다.")
                 continue
@@ -53,7 +53,7 @@ def get_macro_data(symbol_map: Dict[str, str], start: str, end: str) -> Optional
             logger.error(f"'{symbol}' 데이터 수집 중 오류 발생: {e}", exc_info=True)
             # 하나의 지표 실패가 전체를 중단시키지 않도록 계속 진행
             continue
-    
+
     if not all_dfs:
         logger.error("수집된 거시경제 지표 데이터가 전혀 없습니다.")
         return None
@@ -62,10 +62,10 @@ def get_macro_data(symbol_map: Dict[str, str], start: str, end: str) -> Optional
     try:
         # reduce를 사용하여 리스트의 모든 데이터프레임을 순차적으로 병합
         final_df = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True, how='outer'), all_dfs)
-        
+
         # 데이터가 없는 날짜(주말 등)의 NaN 값을 이전 값으로 채우기 (Forward Fill)
         final_df.ffill(inplace=True)
-        
+
         logger.info(f"거시경제 지표 수집 및 병합 완료. (총 {len(final_df)}일치)")
         return final_df
 

@@ -44,7 +44,7 @@ services:
     networks:
       - trading-network
     command: redis-server --appendonly yes
-    
+
   # PostgreSQL (거래 로그 및 메타데이터)
   postgres:
     image: postgres:15-alpine

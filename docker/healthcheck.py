@@ -36,23 +36,23 @@ def check_log_files():
         "/app/logs/supervisord.log",
         "/app/logs/dashboard.log"
     ]
-    
+
     for log_file in log_files:
         if not os.path.exists(log_file):
             return False
-    
+
     return True
 
 def check_trading_engine():
     """거래 엔진 상태 확인 (활성화된 경우)"""
     if os.environ.get('TRADING_ENABLED', 'false').lower() != 'true':
         return True  # 비활성화된 경우 통과
-    
+
     # 거래 엔진 로그 확인
     engine_log = "/app/logs/trading-engine.log"
     if not os.path.exists(engine_log):
         return False
-    
+
     return True
 
 def main():
@@ -64,11 +64,11 @@ def main():
         "trading_engine": check_trading_engine(),
         "metrics": check_metrics_endpoint()
     }
-    
+
     # 모든 체크가 통과하면 성공
-    all_healthy = all(health_status.values() if k != "timestamp" else True 
+    all_healthy = all(health_status.values() if k != "timestamp" else True
                      for k, v in health_status.items())
-    
+
     if all_healthy:
         print("✅ Health check passed")
         print(json.dumps(health_status, indent=2))

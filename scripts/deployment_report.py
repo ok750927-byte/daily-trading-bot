@@ -7,7 +7,7 @@ from pathlib import Path
 
 def create_deployment_report():
     """배포 완료 리포트 생성"""
-    
+
     report = {
         "deployment_info": {
             "date": datetime.now().isoformat(),
@@ -15,7 +15,7 @@ def create_deployment_report():
             "status": "✅ 배포 완료",
             "components": [
                 "메트릭 수집 시스템",
-                "HTTP 메트릭 서버", 
+                "HTTP 메트릭 서버",
                 "실시간 모니터링 대시보드",
                 "Discord 알림 시스템",
                 "자동화된 서비스 관리"
@@ -23,7 +23,7 @@ def create_deployment_report():
         },
         "system_status": {
             "metrics_server": "http://localhost:8000",
-            "dashboard": "http://localhost:8501", 
+            "dashboard": "http://localhost:8501",
             "health_check": "http://localhost:8000/health",
             "prometheus_metrics": "http://localhost:8000/metrics"
         },
@@ -58,12 +58,12 @@ def create_deployment_report():
             "백업 및 장애 복구 시스템 구축"
         ]
     }
-    
+
     # JSON 리포트 저장
     report_file = Path("results/deployment_report.json")
     with open(report_file, 'w', encoding='utf-8') as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
-    
+
     # 텍스트 리포트 생성
     text_report = f"""
 🚀 Daily Trading Bot - 프로덕션 배포 완료 리포트
@@ -86,7 +86,7 @@ def create_deployment_report():
 🌐 서비스 접근 정보
 --------------------------------
 • 메트릭 서버: http://localhost:8000
-• 헬스 체크: http://localhost:8000/health  
+• 헬스 체크: http://localhost:8000/health
 • Prometheus 메트릭: http://localhost:8000/metrics
 • HTML 대시보드: results/production_dashboard.html
 • Streamlit 대시보드: http://localhost:8501 (설치 후)
@@ -124,19 +124,19 @@ scripts\\service_scripts\\stop_all_services.bat
 ================================================================
 Generated at: {datetime.now().isoformat()}
 """
-    
-    # 텍스트 리포트 저장  
+
+    # 텍스트 리포트 저장
     text_file = Path("results/deployment_summary.txt")
     with open(text_file, 'w', encoding='utf-8') as f:
         f.write(text_report)
-    
+
     print("📄 배포 리포트 생성 완료:")
     print(f"   JSON: {report_file}")
     print(f"   텍스트: {text_file}")
-    
+
     # 콘솔에 요약 출력
     print(text_report)
-    
+
     return report
 
 if __name__ == "__main__":

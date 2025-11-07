@@ -10,11 +10,11 @@ from pathlib import Path
 
 class MonitoringSetup:
     """모니터링 시스템 설정"""
-    
+
     def __init__(self):
         self.config_dir = Path("monitoring")
         self.config_dir.mkdir(exist_ok=True)
-    
+
     def create_prometheus_config(self):
         """Prometheus 설정 파일 생성"""
         config = {
@@ -55,14 +55,14 @@ class MonitoringSetup:
                 ]
             }
         }
-        
+
         config_file = self.config_dir / "prometheus.yml"
         with open(config_file, 'w', encoding='utf-8') as f:
             yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
-        
+
         print(f"Prometheus 설정 파일 생성: {config_file}")
         return config_file
-    
+
     def create_grafana_dashboard(self):
         """Grafana 대시보드 JSON 생성"""
         dashboard = {
@@ -89,7 +89,7 @@ class MonitoringSetup:
                                 "refId": "A"
                             },
                             {
-                                "expr": "trading_bot_memory_percent", 
+                                "expr": "trading_bot_memory_percent",
                                 "legendFormat": "Memory (%)",
                                 "refId": "B"
                             }
@@ -189,14 +189,14 @@ class MonitoringSetup:
             },
             "overwrite": True
         }
-        
+
         dashboard_file = self.config_dir / "trading_dashboard.json"
         with open(dashboard_file, 'w', encoding='utf-8') as f:
             json.dump(dashboard, f, ensure_ascii=False, indent=2)
-        
+
         print(f"Grafana 대시보드 생성: {dashboard_file}")
         return dashboard_file
-    
+
     def create_docker_monitoring_compose(self):
         """모니터링 서비스 Docker Compose 파일"""
         compose = {
@@ -242,15 +242,15 @@ class MonitoringSetup:
                 'grafana-storage': {}
             }
         }
-        
+
         compose_file = self.config_dir / "docker-compose.monitoring.yml"
         with open(compose_file, 'w', encoding='utf-8') as f:
             yaml.dump(compose, f, default_flow_style=False)
-        
+
         print(f"모니터링 Docker Compose 파일 생성: {compose_file}")
         return compose_file
-    
-    def setup_grafana_datasource(self, grafana_url="http://localhost:3000", 
+
+    def setup_grafana_datasource(self, grafana_url="http://localhost:3000",
                                 admin_user="admin", admin_password="admin123"):
         """Grafana 데이터소스 설정"""
         try:
@@ -262,25 +262,25 @@ class MonitoringSetup:
                 "access": "proxy",
                 "isDefault": True
             }
-            
+
             response = requests.post(
                 f"{grafana_url}/api/datasources",
                 json=datasource_config,
                 auth=(admin_user, admin_password),
                 headers={'Content-Type': 'application/json'}
             )
-            
+
             if response.status_code in [200, 409]:  # 200: 성공, 409: 이미 존재
                 print("Grafana 데이터소스 설정 완료")
                 return True
             else:
                 print(f"데이터소스 설정 실패: {response.status_code} - {response.text}")
                 return False
-                
+
         except Exception as e:
             print(f"Grafana 데이터소스 설정 중 오류: {e}")
             return False
-    
+
     def import_dashboard(self, grafana_url="http://localhost:3000",
                         admin_user="admin", admin_password="admin123"):
         """대시보드 임포트"""
@@ -289,24 +289,24 @@ class MonitoringSetup:
             if not dashboard_file.exists():
                 print("대시보드 파일이 없습니다. 먼저 create_grafana_dashboard()를 실행하세요.")
                 return False
-            
+
             with open(dashboard_file, 'r', encoding='utf-8') as f:
                 dashboard_json = json.load(f)
-            
+
             response = requests.post(
                 f"{grafana_url}/api/dashboards/db",
                 json=dashboard_json,
                 auth=(admin_user, admin_password),
                 headers={'Content-Type': 'application/json'}
             )
-            
+
             if response.status_code == 200:
                 print("Grafana 대시보드 임포트 완료")
                 return True
             else:
                 print(f"대시보드 임포트 실패: {response.status_code} - {response.text}")
                 return False
-                
+
         except Exception as e:
             print(f"대시보드 임포트 중 오류: {e}")
             return False
@@ -314,24 +314,24 @@ class MonitoringSetup:
 def setup_monitoring():
     """전체 모니터링 시스템 설정"""
     setup = MonitoringSetup()
-    
+
     print("=== 모니터링 시스템 설정 시작 ===")
-    
+
     # 1. 설정 파일들 생성
     setup.create_prometheus_config()
     setup.create_grafana_dashboard()
     setup.create_docker_monitoring_compose()
-    
+
     print("\n=== Docker Compose로 모니터링 서비스 시작 ===")
     print("다음 명령어를 실행하세요:")
     print("cd monitoring")
     print("docker-compose -f docker-compose.monitoring.yml up -d")
-    
+
     print("\n=== 서비스 접근 정보 ===")
     print("- Prometheus: http://localhost:9090")
     print("- Grafana: http://localhost:3000 (admin/admin123)")
     print("- Node Exporter: http://localhost:9100")
-    
+
     print("\n=== Grafana 설정 (Docker 시작 후 실행) ===")
     print("setup.setup_grafana_datasource()")
     print("setup.import_dashboard()")

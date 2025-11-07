@@ -7,13 +7,13 @@ echo.
 :menu
 echo 1. Docker 이미지 빌드
 echo 2. 개발 환경 실행
-echo 3. 운영 환경 실행  
+echo 3. 운영 환경 실행
 echo 4. 컨테이너 중지
 echo 5. 로그 보기
 echo 6. 시스템 정리
 echo 7. 종료
 echo.
-set /p choice=선택하세요 (1-7): 
+set /p choice=선택하세요 (1-7):
 
 if "%choice%"=="1" goto build
 if "%choice%"=="2" goto dev
@@ -94,7 +94,7 @@ echo 1. 전체 로그
 echo 2. 거래 엔진 로그
 echo 3. 대시보드 로그
 echo 4. 에러 로그만
-set /p logchoice=선택하세요 (1-4): 
+set /p logchoice=선택하세요 (1-4):
 
 if "%logchoice%"=="1" docker-compose logs -f
 if "%logchoice%"=="2" docker-compose logs -f trading-bot

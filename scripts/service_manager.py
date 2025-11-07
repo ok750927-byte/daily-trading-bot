@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 class ServiceManager:
     """Windows 서비스 관리자"""
-    
+
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
         self.venv_python = self.project_root / "venv314" / "Scripts" / "python.exe"
-        
+
         # 서비스 정의
         self.services = {
             "trading-engine": {
@@ -30,7 +30,7 @@ class ServiceManager:
                 "dependencies": []
             },
             "metrics-server": {
-                "display_name": "Trading Bot Metrics Server", 
+                "display_name": "Trading Bot Metrics Server",
                 "description": "거래봇 메트릭 수집 및 HTTP 서버",
                 "script": "scripts/metrics_server.py",
                 "dependencies": []
@@ -42,11 +42,11 @@ class ServiceManager:
                 "dependencies": ["trading-engine"]
             }
         }
-    
+
     def create_service_wrapper(self, service_name: str) -> Path:
         """서비스 래퍼 스크립트 생성"""
         service_config = self.services[service_name]
-        
+
         wrapper_content = f'''"""
 {service_config["display_name"]} 서비스 래퍼
 """
@@ -79,27 +79,27 @@ def main():
     """메인 실행 함수"""
     try:
         logger.info("{service_config['display_name']} 서비스 시작")
-        
+
         # 작업 디렉토리를 프로젝트 루트로 설정
         os.chdir(project_root)
-        
+
         # 실제 스크립트 실행
         if "{service_name}" == "trading-engine":
             from src.trading.realtime_engine import RealTimeTradingEngine
             engine = RealTimeTradingEngine()
             engine.start_trading()
-            
+
         elif "{service_name}" == "metrics-server":
             from scripts.metrics_server import main as metrics_main
             metrics_main()
-            
+
         elif "{service_name}" == "dashboard":
             import subprocess
             import streamlit.web.cli as stcli
-            sys.argv = ["streamlit", "run", "scripts/dashboard_realtime.py", 
+            sys.argv = ["streamlit", "run", "scripts/dashboard_realtime.py",
                        "--server.port", "8501", "--server.address", "0.0.0.0"]
             stcli.main()
-        
+
     except Exception as e:
         logger.error(f"서비스 실행 중 오류: {{e}}")
         raise
@@ -111,21 +111,21 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-        
+
         wrapper_file = self.project_root / "services" / f"{service_name}_service.py"
         wrapper_file.parent.mkdir(exist_ok=True)
-        
+
         with open(wrapper_file, 'w', encoding='utf-8') as f:
             f.write(wrapper_content)
-        
+
         logger.info(f"서비스 래퍼 생성: {wrapper_file}")
         return wrapper_file
-    
+
     def create_batch_scripts(self):
         """배치 스크립트 생성"""
         scripts_dir = self.project_root / "scripts" / "service_scripts"
         scripts_dir.mkdir(exist_ok=True)
-        
+
         # 전체 시작 스크립트
         start_all_content = '''@echo off
 echo ================================
@@ -157,11 +157,11 @@ pause
             self.project_root, self.venv_python,
             self.project_root, self.venv_python
         )
-        
+
         start_all_file = scripts_dir / "start_all_services.bat"
         with open(start_all_file, 'w', encoding='utf-8') as f:
             f.write(start_all_content)
-        
+
         # 서비스 상태 확인 스크립트
         status_content = '''@echo off
 echo ================================
@@ -189,12 +189,12 @@ if errorlevel 1 (
 echo.
 pause
 '''.format(self.project_root)
-        
+
         status_file = scripts_dir / "check_services.bat"
         with open(status_file, 'w', encoding='utf-8') as f:
             f.write(status_content)
-        
-        # 서비스 중지 스크립트  
+
+        # 서비스 중지 스크립트
         stop_content = '''@echo off
 echo ================================
 echo Daily Trading Bot 서비스 중지
@@ -219,27 +219,27 @@ echo.
 echo 모든 서비스가 중지되었습니다.
 pause
 '''
-        
+
         stop_file = scripts_dir / "stop_all_services.bat"
         with open(stop_file, 'w', encoding='utf-8') as f:
             f.write(stop_content)
-        
+
         logger.info(f"배치 스크립트 생성 완료:")
         logger.info(f"  - 시작: {start_all_file}")
         logger.info(f"  - 상태: {status_file}")
         logger.info(f"  - 중지: {stop_file}")
-        
+
         return {
             'start': start_all_file,
             'status': status_file,
             'stop': stop_file
         }
-    
+
     def create_scheduled_task_xml(self, service_name: str) -> Path:
         """Windows 작업 스케줄러용 XML 생성"""
         service_config = self.services[service_name]
         wrapper_file = self.project_root / "services" / f"{service_name}_service.py"
-        
+
         task_xml = f'''<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
@@ -286,23 +286,23 @@ pause
     </Exec>
   </Actions>
 </Task>'''
-        
+
         task_file = self.project_root / "services" / f"{service_name}_task.xml"
         with open(task_file, 'w', encoding='utf-16') as f:
             f.write(task_xml)
-        
+
         logger.info(f"작업 스케줄러 XML 생성: {task_file}")
         return task_file
-    
+
     def install_service(self, service_name: str):
         """서비스 설치 (작업 스케줄러 사용)"""
         try:
             # 래퍼 스크립트 생성
             wrapper_file = self.create_service_wrapper(service_name)
-            
+
             # 작업 스케줄러 XML 생성
             task_file = self.create_scheduled_task_xml(service_name)
-            
+
             # 작업 스케줄러에 등록
             task_name = f"DailyTradingBot_{service_name}"
             cmd = [
@@ -311,7 +311,7 @@ pause
                 "/xml", str(task_file),
                 "/f"  # 덮어쓰기
             ]
-            
+
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 logger.info(f"서비스 설치 완료: {service_name}")
@@ -319,17 +319,17 @@ pause
             else:
                 logger.error(f"서비스 설치 실패: {result.stderr}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"서비스 설치 중 오류: {e}")
             return False
-    
+
     def uninstall_service(self, service_name: str):
         """서비스 제거"""
         try:
             task_name = f"DailyTradingBot_{service_name}"
             cmd = ["schtasks", "/delete", "/tn", task_name, "/f"]
-            
+
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 logger.info(f"서비스 제거 완료: {service_name}")
@@ -337,17 +337,17 @@ pause
             else:
                 logger.error(f"서비스 제거 실패: {result.stderr}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"서비스 제거 중 오류: {e}")
             return False
-    
+
     def start_service(self, service_name: str):
         """서비스 시작"""
         try:
             task_name = f"DailyTradingBot_{service_name}"
             cmd = ["schtasks", "/run", "/tn", task_name]
-            
+
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 logger.info(f"서비스 시작: {service_name}")
@@ -355,17 +355,17 @@ pause
             else:
                 logger.error(f"서비스 시작 실패: {result.stderr}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"서비스 시작 중 오류: {e}")
             return False
-    
+
     def stop_service(self, service_name: str):
         """서비스 중지"""
         try:
             task_name = f"DailyTradingBot_{service_name}"
             cmd = ["schtasks", "/end", "/tn", task_name]
-            
+
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 logger.info(f"서비스 중지: {service_name}")
@@ -373,7 +373,7 @@ pause
             else:
                 logger.error(f"서비스 중지 실패: {result.stderr}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"서비스 중지 중 오류: {e}")
             return False
@@ -381,11 +381,11 @@ pause
 def main():
     """메인 함수"""
     manager = ServiceManager()
-    
+
     if len(sys.argv) < 2:
         print("사용법:")
         print("  python service_manager.py install [service_name]")
-        print("  python service_manager.py uninstall [service_name]") 
+        print("  python service_manager.py uninstall [service_name]")
         print("  python service_manager.py start [service_name]")
         print("  python service_manager.py stop [service_name]")
         print("  python service_manager.py create_scripts")
@@ -394,29 +394,29 @@ def main():
         for name, config in manager.services.items():
             print(f"  - {name}: {config['display_name']}")
         return
-    
+
     action = sys.argv[1]
-    
+
     if action == "create_scripts":
         scripts = manager.create_batch_scripts()
         print("배치 스크립트가 생성되었습니다:")
         for script_type, path in scripts.items():
             print(f"  {script_type}: {path}")
         return
-    
+
     if len(sys.argv) < 3:
         print("서비스 이름을 지정해주세요.")
         return
-    
+
     service_name = sys.argv[2]
-    
+
     if service_name not in manager.services:
         print(f"알 수 없는 서비스: {service_name}")
         print("사용 가능한 서비스:")
         for name in manager.services.keys():
             print(f"  - {name}")
         return
-    
+
     if action == "install":
         manager.install_service(service_name)
     elif action == "uninstall":
