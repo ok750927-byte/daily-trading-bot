@@ -25,7 +25,7 @@ Summary
  Checklist (actionable)
  ----------------------
  - [ ] List all exposed secrets here (name, provider, file/path, sample masked value):
-			 - e.g. `KIS_APP_KEY` (broker) — found in `secrets.json` — last 4 chars: `****o72U7s7`
+				- e.g. `KIS_APP_KEY` (broker) — found in `secrets.json` — last 4 chars: `****xxxx`
  - [ ] For each secret: Revoke the old credential at the provider and record the revocation timestamp and confirmation ID.
  - [ ] Create new credentials and securely store them in the team's secret manager (GitHub Actions secrets or Vault). Do NOT commit new secrets into the repo.
  - [ ] Replace local copies: update `secrets.json.local.bak` (for reference) and move dev workflows to use OS keyring / environment variables where possible.

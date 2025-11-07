@@ -18,8 +18,8 @@ pip install -r requirements.txt
 환경 변수 예시 (PowerShell):
 
 ```powershell
-$env:TRADING_API_KEY = "your_api_key_here"
-$env:TRADING_API_SECRET = "your_secret_here"
+$env:TRADING_API_KEY = "<REDACTED>"
+$env:TRADING_API_SECRET = "<REDACTED>"
 ```
 
 ## 운영자(Operator) 승인 흐름

@@ -224,7 +224,8 @@ class MonitoringSetup:
                     'container_name': 'grafana',
                     'ports': ['3000:3000'],
                     'environment': {
-                        'GF_SECURITY_ADMIN_PASSWORD': 'admin123'
+                        # Do not hardcode passwords in source. Read from environment at runtime.
+                        'GF_SECURITY_ADMIN_PASSWORD': os.environ.get('GF_SECURITY_ADMIN_PASSWORD', 'changeme')
                     },
                     'volumes': [
                         'grafana-storage:/var/lib/grafana'

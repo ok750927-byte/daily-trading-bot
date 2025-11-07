@@ -109,10 +109,10 @@ def create_sample_config_files():
 
         # secrets.json 샘플 (실제 값은 사용자가 입력해야 함)
         secrets_sample = {
-            "KIS_APP_KEY": "YOUR_APP_KEY_HERE",
-            "KIS_APP_SECRET": "YOUR_APP_SECRET_HERE",
-            "ACCOUNT_NUMBER": "YOUR_ACCOUNT_NUMBER_HERE",
-            "DISCORD_WEBHOOK_URL": "YOUR_DISCORD_WEBHOOK_URL_HERE"
+            "KIS_APP_KEY": "<REDACTED>",
+            "KIS_APP_SECRET": "<REDACTED>",
+            "ACCOUNT_NUMBER": "<REDACTED>",
+            "DISCORD_WEBHOOK_URL": "<REDACTED>"
         }
 
         secrets_file = project_root / "secrets.json"
