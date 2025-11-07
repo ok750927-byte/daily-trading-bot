@@ -6,25 +6,25 @@ key = 'date'
     def get_loc(self, key):
         """
         Get integer location, slice or boolean mask for requested label.
-    
+
         Parameters
         ----------
         key : label
-    
+
         Returns
         -------
         int if unique index, slice if monotonic index, else mask
-    
+
         Examples
         --------
         &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
         &gt;&gt;&gt; unique_index.get_loc('b')
         1
-    
+
         &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
         &gt;&gt;&gt; monotonic_index.get_loc('b')
         slice(1, 3, None)
-    
+
         &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
         &gt;&gt;&gt; non_monotonic_index.get_loc('b')
         array([False,  True, False,  True])
@@ -34,7 +34,7 @@ key = 'date'
 &gt;           return self._engine.get_loc(casted_key)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-venv\Lib\site-packages\pandas\core\indexes\base.py:3812: 
+venv\Lib\site-packages\pandas\core\indexes\base.py:3812:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 pandas/_libs/index.pyx:167: in pandas._libs.index.IndexEngine.get_loc
     ???
@@ -64,10 +64,10 @@ mock_sys_exit = &lt;MagicMock name='exit' id='2248281921856'&gt;
         print("- Running test: test_action_predict_no_model")
         mock_exists.return_value = False # 모델이 존재하지 않는 것으로 가정
         sys.argv = ['main.py', '--action', 'predict']
-    
+
 &gt;       main()
 
-tests\test_main.py:87: 
+tests\test_main.py:87:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 main.py:121: in run_pipeline
     generate_predictions(
@@ -89,25 +89,25 @@ key = 'date'
     def get_loc(self, key):
         """
         Get integer location, slice or boolean mask for requested label.
-    
+
         Parameters
         ----------
         key : label
-    
+
         Returns
         -------
         int if unique index, slice if monotonic index, else mask
-    
+
         Examples
         --------
         &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
         &gt;&gt;&gt; unique_index.get_loc('b')
         1
-    
+
         &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
         &gt;&gt;&gt; monotonic_index.get_loc('b')
         slice(1, 3, None)
-    
+
         &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
         &gt;&gt;&gt; non_monotonic_index.get_loc('b')
         array([False,  True, False,  True])

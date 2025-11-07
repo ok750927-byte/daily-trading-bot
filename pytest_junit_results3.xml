@@ -5,15 +5,15 @@
         target_stocks = ['001', '002']
         start_date = "2022-10-01"
         end_date = "2022-12-31"
-    
+
         df = load_all_data(mock_data_path, target_stocks, start_date, end_date)
-    
+
         assert df is not None
         assert not df.empty
         assert len(df) == 92 * 2 # 92 days in period * 2 stocks
         assert 'KOSPI' in df.columns
         assert 'BPS' in df.columns
-    
+
         df_001 = df[df['code'] == '001']
 &gt;       assert df_001[df_001['date'] &lt; '2022-12-01']['BPS'].iloc[-1] == 1000
 E       assert np.float64(nan) == 1000
@@ -25,9 +25,9 @@ tests\test_preprocessing.py:67: AssertionError</failure></testcase><testcase cla
         target_stocks = ['001']
         start_date = "2022-01-01"
         end_date = "2023-01-10"
-    
+
         final_df = preprocess_data(mock_data_path, target_stocks, start_date, end_date)
-    
+
         assert final_df is not None
         assert not final_df.empty
         assert final_df.isnull().sum().sum() == 0

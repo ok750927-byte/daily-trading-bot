@@ -37,9 +37,9 @@ def _safe_read_table(path):
         except Exception:
             raise
 
-def load_all_data(data_path: str, 
-                  target_stocks: List[str], 
-                  start_date: str, 
+def load_all_data(data_path: str,
+                  target_stocks: List[str],
+                  start_date: str,
                   end_date: str) -> Optional[pd.DataFrame]:
     """
     지정된 경로에서 모든 데이터를 로드하고 병합합니다.
@@ -118,7 +118,7 @@ def load_all_data(data_path: str,
                         fundamentals_df = pd.DataFrame()
         if fundamentals_df.empty:
             print("[WARNING] 재무 데이터를 찾을 수 없습니다.")
-        
+
         # 3. 개별 종목 데이터와 재무 데이터 병합
         all_stocks_df = []
         for stock_code in target_stocks:
@@ -126,7 +126,7 @@ def load_all_data(data_path: str,
             if not os.path.exists(price_path):
                 print(f"[WARNING] {stock_code}의 시세 데이터를 찾을 수 없습니다.")
                 continue
-            
+
             price_df = _safe_read_table(price_path)
             if 'date' not in price_df.columns:
                 price_df.reset_index(inplace=True)
@@ -140,7 +140,7 @@ def load_all_data(data_path: str,
             price_df['date'] = pd.to_datetime(price_df['date'])
             price_df = price_df[(price_df['date'] >= start_date) & (price_df['date'] <= end_date)]
             price_df['code'] = stock_code
-            
+
             merged_df = price_df
             # 재무 데이터 병합
             if not fundamentals_df.empty:
@@ -167,7 +167,7 @@ def load_all_data(data_path: str,
 
         # 4. 모든 주식 데이터 취합 후 거시경제 데이터 병합
         final_df = pd.concat(all_stocks_df).sort_values(['code', 'date']).reset_index(drop=True)
-        
+
         if not macro_df.empty:
             final_df = pd.merge(final_df, macro_df, on='date', how='left')
 
@@ -230,7 +230,7 @@ def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     # 거래량(Volume)의 NaN은 0으로 채움 (ffill/bfill 후에도 남는 경우 대비)
     if 'Volume' in df_filled.columns:
         df_filled['Volume'] = df_filled['Volume'].fillna(0)
-    
+
     return df_filled
 
 def create_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -238,7 +238,7 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     기술적 분석 지표를 생성합니다.
     """
     df_featured = df.copy()
-    
+
     # 종목별로 그룹화하여 피처 생성
     def calculate_features(group):
         # 종가 이동평균 (min_periods을 설정해 초기 NaN 개수가 테스트와 일치하도록)
@@ -277,19 +277,19 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
 
     grouped = df_featured.groupby('code', group_keys=False)
     df_featured = _safe_group_apply(grouped, calculate_features)
-    
+
     return df_featured
 
-def preprocess_data(data_path: str, 
-                    target_stocks: List[str], 
-                    start_date: str, 
+def preprocess_data(data_path: str,
+                    target_stocks: List[str],
+                    start_date: str,
                     end_date: str) -> Optional[pd.DataFrame]:
     """
     전체 데이터 전처리 파이프라인을 실행합니다.
     수정: parquet 파일에서 직접 데이터를 필터링합니다.
     """
     print("=== 데이터 전처리 시작 ===")
-    
+
     # 1. 단일 Parquet 파일 또는 데이터 디렉토리에서 데이터 로드
     print(f"[1/4] 데이터 로딩 중: {data_path}")
     try:
@@ -326,12 +326,12 @@ def preprocess_data(data_path: str,
     print("[2/4] 데이터 필터링 중...")
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
-    
+
     df['Date'] = pd.to_datetime(df['Date'])
-    
+
     filtered_df = df[
-        (df['Date'] >= start_date) & 
-        (df['Date'] <= end_date) & 
+        (df['Date'] >= start_date) &
+        (df['Date'] <= end_date) &
         (df['code'].isin(target_stocks))
     ].copy()
 
@@ -354,6 +354,6 @@ def preprocess_data(data_path: str,
     cleaned_df = handle_missing_values(featured_df)
     final_df = cleaned_df.reset_index(drop=True)
     print(f"  -> 처리 완료. 최종 {len(final_df)}개 행, 남은 결측치: {final_df.isnull().sum().sum()}개")
-    
+
     print("=== 데이터 전처리 완료 ===")
     return final_df

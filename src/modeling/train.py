@@ -31,12 +31,12 @@ def train_model(data_path, model_save_path, scaler_save_path):
     except Exception as e:
         print(f"[ERROR] 데이터 파일({data_path}) 로드 실패: {e}")
         return
-    
+
     # --- 2. 피처 및 타겟 생성 ---
     print("피처 및 타겟 생성을 시작합니다...")
     df_with_features = create_features(df)
     df_with_target = create_target(df_with_features, period=5)
-    
+
     features = [
         'ma5', 'ma20', 'ma60', 'ma120',
         'volume_ma5', 'volume_ma20',
@@ -45,19 +45,19 @@ def train_model(data_path, model_save_path, scaler_save_path):
         'BPS', 'PER', 'PBR', 'EPS', 'DIV', 'DPS'
     ]
     target = 'target'
-    
+
     # 데이터프레임에 존재하는 피처만 선택
     available_features = [f for f in features if f in df_with_target.columns]
     print(f"사용 가능한 피처: {available_features}")
-    
+
     df_cleaned = df_with_target.dropna(subset=available_features + [target])
-    
+
     if df_cleaned.empty:
         print("[ERROR] 훈련에 사용할 데이터가 없습니다. (결측치 제거 후 비어 있음)")
         return
-        
+
     print(f"결측치 제거 후 최종 훈련 데이터 수: {len(df_cleaned)}")
-    
+
     # --- 3. 데이터 분할 및 스케일링 ---
     X_train, X_test, y_train, y_test, scaler = split_data(
         df_cleaned, available_features, target, test_size=0.2, random_state=42
@@ -87,7 +87,7 @@ def train_model(data_path, model_save_path, scaler_save_path):
     # --- 6. 모델 및 스케일러 저장 ---
     os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
     os.makedirs(os.path.dirname(scaler_save_path), exist_ok=True)
-    
+
     joblib.dump(model, model_save_path)
     joblib.dump(scaler, scaler_save_path)
 

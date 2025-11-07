@@ -1,31 +1,76 @@
-# Team notice: imminent force-push to rewrite history
+# Team notice: planned history rewrite (force-push)
 
-We will perform a destructive history rewrite to remove sensitive file(s) (`secrets.json`) from the repository history and replace the remote history with the rewritten local history.
+Summary
+-------
+We plan to rewrite repository history to remove sensitive file(s) (example: `secrets.json`) from past commits and replace the remote history with a cleaned version. This is disruptive and requires coordination.
 
-This is a disruptive operation. Please READ CAREFULLY and follow the instructions.
+High-level timeline (example)
+- T-48h: Notify team, rotate critical keys (broker, Discord), update CI secrets (required).
+- T-2h: Final smoke tests with new keys (operator).
+- T: Execute force-push (operator).
+- T+1h: Validation and developer re-sync window.
 
-What we're changing:
-- Remove `secrets.json` from all commits in the repository history.
+Pre-conditions (MUST be completed before the force-push)
+-----------------------------------------------------
+- All exposed credentials rotated and new values stored in CI and keyring.
+- Team acknowledgement received (reply-all or Slack confirmation).
+- A maintenance window scheduled and recorded.
 
-Immediate actions required from all developers BEFORE the force-push:
-1. Rotate/replace any exposed credentials (recommended). This must be done on provider side (broker API, Discord webhook, etc.). Use `docs/KEY_ROTATION_TEMPLATES.md` and `docs/SECRET_ROTATION.md`.
-2. Backup any local work; create local clones if necessary. The force-push will change commit hashes.
+What you must do BEFORE the force-push
+--------------------------------------
+1) Secure your uncommitted work:
 
-After we perform the force-push (what you must do locally):
-1. Move any uncommitted local work aside (stash or copy folder).
-2. Delete your local repository clone and re-clone from remote, OR reset your local branches as follows:
+    - Stash or copy any uncommitted changes. Example:
 
-   # Option A: re-clone (recommended)
-   git clone <repo-url>
+       ```bash
+       git status --porcelain
+       git stash push -m "WIP before history rewrite"
+       ```
 
-   # Option B: if you must preserve local branches (advanced)
-   git fetch --all
-   git reset --hard origin/<branch>
+2) If you have local branches not pushed to remote, push them to a temporary remote or save patches:
 
-2. Recreate any local branches or cherry-pick work from your backups.
+    ```bash
+    git format-patch origin/main..HEAD -o ~/patches-before-rewrite
+    ```
 
-Timeline & contact
-- Planned time: TBD (coordinate with team)
-- Contact: @team-lead (please replace with actual contact)
+3) Confirm you have rotated keys (use `docs/KEY_ROTATION_TEMPLATES.md`). Reply to the team notice with a short confirmation: "I have rotated keys and updated CI secrets — ready."
 
-If you have questions or are not ready, reply to this message BEFORE the force-push.
+What will happen during the force-push (brief)
+---------------------------------------------
+- The canonical repo will be replaced with the rewritten history. Commit SHAs will change. Branch references will be overwritten.
+
+What you must do AFTER the force-push
+-------------------------------------
+Option A (recommended, clean): re-clone the repository
+
+   ```bash
+   # remove or move your current clone
+   cd ..
+   mv my-repo my-repo-backup
+   git clone <repo-url> my-repo
+   ```
+
+Option B (advanced, keep local branches)
+
+   ```bash
+   git fetch --all --prune
+   # reset local branch to match origin
+   git checkout main
+   git reset --hard origin/main
+   # for feature branches, rebase onto updated main
+   git checkout my-feature
+   git rebase origin/main
+   ```
+
+If you had stashed work, re-apply it carefully and test locally before pushing.
+
+Contact & rollback plan
+-----------------------
+- Contact: @team-lead (replace with actual Slack/Email) and ops on-call.
+- Rollback: if the force-push causes immediate critical failures, we will restore from the pre-rewrite backup (operator has a local mirror and can restore the previous state). This is why we ask everyone to backup work.
+
+Questions or objections
+----------------------
+If you are not ready or have concerns, reply to this notice BEFORE the scheduled window. Do NOT attempt to push during the maintenance window unless instructed.
+
+-- End of notice --

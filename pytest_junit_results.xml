@@ -13,7 +13,7 @@ requests_mock = &lt;tests.conftest._SimpleRequestsMock object at 0x0000020D84450
 &gt;       token = api.get_access_token()
                 ^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_korea_investment_order.py:23: 
+tests\test_korea_investment_order.py:23:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 src\trading\korea_investment_order.py:28: in get_access_token
     resp = requests.post(url, json=payload, headers=headers)
@@ -29,7 +29,7 @@ session = &lt;requests.sessions.Session object at 0x0000020D84450650&gt;
 
     def request(method, url, **kwargs):
         """Constructs and sends a :class:`Request &lt;Request&gt;`.
-    
+
         :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
         :param url: URL for the new :class:`Request` object.
         :param params: (optional) Dictionary, list of tuples or bytes to send
@@ -59,15 +59,15 @@ session = &lt;requests.sessions.Session object at 0x0000020D84450650&gt;
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
         :return: :class:`Response &lt;Response&gt;` object
         :rtype: requests.Response
-    
+
         Usage::
-    
+
           &gt;&gt;&gt; import requests
           &gt;&gt;&gt; req = requests.request('GET', 'https://httpbin.org/get')
           &gt;&gt;&gt; req
           &lt;Response [200]&gt;
         """
-    
+
         # By using the 'with' statement we are sure the session is closed, thus we
         # avoid leaving sockets open which can trigger a ResourceWarning in some
         # cases, and look like a memory leak in others.
@@ -90,7 +90,7 @@ requests_mock = &lt;tests.conftest._SimpleRequestsMock object at 0x0000020D84452
 &gt;       resp = api.send_order('005930', 1, 70000, side='buy')
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_korea_investment_order.py:35: 
+tests\test_korea_investment_order.py:35:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 src\trading\korea_investment_order.py:38: in send_order
     self.access_token = self.get_access_token()
@@ -109,7 +109,7 @@ session = &lt;requests.sessions.Session object at 0x0000020D844508F0&gt;
 
     def request(method, url, **kwargs):
         """Constructs and sends a :class:`Request &lt;Request&gt;`.
-    
+
         :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
         :param url: URL for the new :class:`Request` object.
         :param params: (optional) Dictionary, list of tuples or bytes to send
@@ -139,15 +139,15 @@ session = &lt;requests.sessions.Session object at 0x0000020D844508F0&gt;
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
         :return: :class:`Response &lt;Response&gt;` object
         :rtype: requests.Response
-    
+
         Usage::
-    
+
           &gt;&gt;&gt; import requests
           &gt;&gt;&gt; req = requests.request('GET', 'https://httpbin.org/get')
           &gt;&gt;&gt; req
           &lt;Response [200]&gt;
         """
-    
+
         # By using the 'with' statement we are sure the session is closed, thus we
         # avoid leaving sockets open which can trigger a ResourceWarning in some
         # cases, and look like a memory leak in others.
@@ -170,7 +170,7 @@ requests_mock = &lt;tests.conftest._SimpleRequestsMock object at 0x0000020D8445C
 &gt;       resp = api.get_balance()
                ^^^^^^^^^^^^^^^^^
 
-tests\test_korea_investment_order.py:46: 
+tests\test_korea_investment_order.py:46:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 src\trading\korea_investment_order.py:65: in get_balance
     self.access_token = self.get_access_token()
@@ -189,7 +189,7 @@ session = &lt;requests.sessions.Session object at 0x0000020D8445C6E0&gt;
 
     def request(method, url, **kwargs):
         """Constructs and sends a :class:`Request &lt;Request&gt;`.
-    
+
         :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
         :param url: URL for the new :class:`Request` object.
         :param params: (optional) Dictionary, list of tuples or bytes to send
@@ -219,15 +219,15 @@ session = &lt;requests.sessions.Session object at 0x0000020D8445C6E0&gt;
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
         :return: :class:`Response &lt;Response&gt;` object
         :rtype: requests.Response
-    
+
         Usage::
-    
+
           &gt;&gt;&gt; import requests
           &gt;&gt;&gt; req = requests.request('GET', 'https://httpbin.org/get')
           &gt;&gt;&gt; req
           &lt;Response [200]&gt;
         """
-    
+
         # By using the 'with' statement we are sure the session is closed, thus we
         # avoid leaving sockets open which can trigger a ResourceWarning in some
         # cases, and look like a memory leak in others.
@@ -244,25 +244,25 @@ key = 'date'
     def get_loc(self, key):
         """
         Get integer location, slice or boolean mask for requested label.
-    
+
         Parameters
         ----------
         key : label
-    
+
         Returns
         -------
         int if unique index, slice if monotonic index, else mask
-    
+
         Examples
         --------
         &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
         &gt;&gt;&gt; unique_index.get_loc('b')
         1
-    
+
         &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
         &gt;&gt;&gt; monotonic_index.get_loc('b')
         slice(1, 3, None)
-    
+
         &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
         &gt;&gt;&gt; non_monotonic_index.get_loc('b')
         array([False,  True, False,  True])
@@ -272,7 +272,7 @@ key = 'date'
 &gt;           return self._engine.get_loc(casted_key)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-venv\Lib\site-packages\pandas\core\indexes\base.py:3812: 
+venv\Lib\site-packages\pandas\core\indexes\base.py:3812:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 pandas/_libs/index.pyx:167: in pandas._libs.index.IndexEngine.get_loc
     ???
@@ -302,10 +302,10 @@ mock_sys_exit = &lt;MagicMock name='exit' id='2257076761856'&gt;
         print("- Running test: test_action_predict_no_model")
         mock_exists.return_value = False # 모델이 존재하지 않는 것으로 가정
         sys.argv = ['main.py', '--action', 'predict']
-    
+
 &gt;       main()
 
-tests\test_main.py:87: 
+tests\test_main.py:87:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 main.py:121: in run_pipeline
     generate_predictions(
@@ -327,25 +327,25 @@ key = 'date'
     def get_loc(self, key):
         """
         Get integer location, slice or boolean mask for requested label.
-    
+
         Parameters
         ----------
         key : label
-    
+
         Returns
         -------
         int if unique index, slice if monotonic index, else mask
-    
+
         Examples
         --------
         &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
         &gt;&gt;&gt; unique_index.get_loc('b')
         1
-    
+
         &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
         &gt;&gt;&gt; monotonic_index.get_loc('b')
         slice(1, 3, None)
-    
+
         &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
         &gt;&gt;&gt; non_monotonic_index.get_loc('b')
         array([False,  True, False,  True])

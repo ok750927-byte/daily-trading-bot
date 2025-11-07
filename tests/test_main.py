@@ -27,7 +27,7 @@ class TestMain(unittest.TestCase):
         mock_exists.return_value = True  # 모델이 이미 존재하는 상황을 가정
         # sys.argv를 모의 커맨드라인 인자로 설정
         sys.argv = ['main.py', '--action', 'all', '--force-train']
-        
+
         main()
 
         # 각 함수가 정확히 한 번씩 호출되었는지 검증
@@ -76,7 +76,7 @@ class TestMain(unittest.TestCase):
         print("  ... Passed")
 
     @patch('sys.exit')
-    @patch('builtins.print') 
+    @patch('builtins.print')
     @patch('os.path.exists')
     def test_action_predict_no_model(self, mock_exists, mock_print, mock_sys_exit):
         """'--action predict' 실행 시, 모델이 없으면 sys.exit(1)을 호출하는지 테스트"""

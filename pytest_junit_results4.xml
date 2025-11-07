@@ -5,9 +5,9 @@
         target_stocks = ['001']
         start_date = "2022-01-01"
         end_date = "2023-01-10"
-    
+
         final_df = preprocess_data(mock_data_path, target_stocks, start_date, end_date)
-    
+
         assert final_df is not None
         assert not final_df.empty
         assert final_df.isnull().sum().sum() == 0

@@ -4,25 +4,25 @@ key = 'code'
     def get_loc(self, key):
         """
         Get integer location, slice or boolean mask for requested label.
-    
+
         Parameters
         ----------
         key : label
-    
+
         Returns
         -------
         int if unique index, slice if monotonic index, else mask
-    
+
         Examples
         --------
         &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
         &gt;&gt;&gt; unique_index.get_loc('b')
         1
-    
+
         &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
         &gt;&gt;&gt; monotonic_index.get_loc('b')
         slice(1, 3, None)
-    
+
         &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
         &gt;&gt;&gt; non_monotonic_index.get_loc('b')
         array([False,  True, False,  True])
@@ -32,7 +32,7 @@ key = 'code'
 &gt;           return self._engine.get_loc(casted_key)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-venv\Lib\site-packages\pandas\core\indexes\base.py:3812: 
+venv\Lib\site-packages\pandas\core\indexes\base.py:3812:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 pandas/_libs/index.pyx:167: in pandas._libs.index.IndexEngine.get_loc
     ???
@@ -58,19 +58,19 @@ sample_data =          date code  Close       ma5  volume_ma5
     def test_create_target(sample_data):
         """Test the create_target function."""
         df_with_target = create_target(sample_data, period=3)
-    
+
         assert 'target' in df_with_target.columns
         assert 'future_return' in df_with_target.columns
-    
+
         # Check if the last 'period' rows are dropped for each group
         assert len(df_with_target) == len(sample_data) - (2 * 3) # 2 groups * 3 days
-    
+
         # Check target value logic
         # For stock A, price always increases, so target should be 1
 &gt;       assert df_with_target[df_with_target['code'] == 'A']['target'].unique() == [1]
                               ^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_feature_engineering.py:31: 
+tests\test_feature_engineering.py:31:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 venv\Lib\site-packages\pandas\core\frame.py:4113: in __getitem__
     indexer = self.columns.get_loc(key)
@@ -83,25 +83,25 @@ key = 'code'
     def get_loc(self, key):
         """
         Get integer location, slice or boolean mask for requested label.
-    
+
         Parameters
         ----------
         key : label
-    
+
         Returns
         -------
         int if unique index, slice if monotonic index, else mask
-    
+
         Examples
         --------
         &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
         &gt;&gt;&gt; unique_index.get_loc('b')
         1
-    
+
         &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
         &gt;&gt;&gt; monotonic_index.get_loc('b')
         slice(1, 3, None)
-    
+
         &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
         &gt;&gt;&gt; non_monotonic_index.get_loc('b')
         array([False,  True, False,  True])
@@ -125,11 +125,11 @@ venv\Lib\site-packages\pandas\core\indexes\base.py:3819: KeyError</failure></tes
         target_stocks = ['001']
         start_date = "2022-01-01"
         end_date = "2023-01-10"
-    
+
 &gt;       final_df = preprocess_data(mock_data_path, target_stocks, start_date, end_date)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests\test_preprocessing.py:99: 
+tests\test_preprocessing.py:99:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 src\preprocessing\data_preprocessor.py:348: in preprocess_data
     cleaned_df = handle_missing_values(featured_df)
@@ -166,25 +166,25 @@ validate = True, dropna = True
         mapping of how to create the grouper indexers.
         This may be composed of multiple Grouping objects, indicating
         multiple groupers
-    
+
         Groupers are ultimately index mappings. They can originate as:
         index mappings, keys to columns, functions, or Groupers
-    
+
         Groupers enable local references to axis,level,sort, while
         the passed in axis, level, and sort are 'global'.
-    
+
         This routine tries to figure out what the passing in references
         are and then creates a Grouping for each one, combined into
         a BaseGrouper.
-    
+
         If observed &amp; we have a categorical grouper, only show the observed
         values.
-    
+
         If validate, then check for key/level overlaps.
-    
+
         """
         group_axis = obj._get_axis(axis)
-    
+
         # validate that the passed single level is compatible with the passed
         # axis of the object
         if level is not None:
@@ -199,12 +199,12 @@ validate = True, dropna = True
             if isinstance(group_axis, MultiIndex):
                 if is_list_like(level) and len(level) == 1:
                     level = level[0]
-    
+
                 if key is None and is_scalar(level):
                     # Get the level values from group_axis
                     key = group_axis.get_level_values(level)
                     level = None
-    
+
             else:
                 # allow level to be a length-one list-like object
                 # (e.g., level=[0])
@@ -217,7 +217,7 @@ validate = True, dropna = True
                         raise ValueError("No group keys passed!")
                     else:
                         raise ValueError("multiple levels only valid with MultiIndex")
-    
+
                 if isinstance(level, str):
                     if obj._get_axis(axis).name != level:
                         raise ValueError(
@@ -226,12 +226,12 @@ validate = True, dropna = True
                         )
                 elif level &gt; 0 or level &lt; -1:
                     raise ValueError("level &gt; 0 or level &lt; -1 only valid with MultiIndex")
-    
+
                 # NOTE: `group_axis` and `group_axis.get_level_values(level)`
                 # are same in this section.
                 level = None
                 key = group_axis
-    
+
         # a passed-in Grouper, directly convert
         if isinstance(key, Grouper):
             grouper, obj = key._get_grouper(obj, validate=False)
@@ -239,25 +239,25 @@ validate = True, dropna = True
                 return grouper, frozenset(), obj
             else:
                 return grouper, frozenset({key.key}), obj
-    
+
         # already have a BaseGrouper, just return it
         elif isinstance(key, ops.BaseGrouper):
             return key, frozenset(), obj
-    
+
         if not isinstance(key, list):
             keys = [key]
             match_axis_length = False
         else:
             keys = key
             match_axis_length = len(keys) == len(group_axis)
-    
+
         # what are we after, exactly?
         any_callable = any(callable(g) or isinstance(g, dict) for g in keys)
         any_groupers = any(isinstance(g, (Grouper, Grouping)) for g in keys)
         any_arraylike = any(
             isinstance(g, (list, tuple, Series, Index, np.ndarray)) for g in keys
         )
-    
+
         # is this an index replacement?
         if (
             not any_callable
@@ -273,26 +273,26 @@ validate = True, dropna = True
             else:
                 assert isinstance(obj, Series)
                 all_in_columns_index = all(g in obj.index.names for g in keys)
-    
+
             if not all_in_columns_index:
                 keys = [com.asarray_tuplesafe(keys)]
-    
+
         if isinstance(level, (tuple, list)):
             if key is None:
                 keys = [None] * len(level)
             levels = level
         else:
             levels = [level] * len(keys)
-    
+
         groupings: list[Grouping] = []
         exclusions: set[Hashable] = set()
-    
+
         # if the actual grouper should be obj[key]
         def is_in_axis(key) -&gt; bool:
             if not _is_label_like(key):
                 if obj.ndim == 1:
                     return False
-    
+
                 # items -&gt; .columns for DataFrame, .index for Series
                 items = obj.axes[-1]
                 try:
@@ -300,9 +300,9 @@ validate = True, dropna = True
                 except (KeyError, TypeError, InvalidIndexError):
                     # TypeError shows up here if we pass e.g. an Index
                     return False
-    
+
             return True
-    
+
         # if the grouper is obj[name]
         def is_in_obj(gpr) -&gt; bool:
             if not hasattr(gpr, "name"):
@@ -329,12 +329,12 @@ validate = True, dropna = True
                 # OutOfBoundsDatetime raised when obj is a Series with DatetimeIndex
                 # and gpr.name is month str
                 return False
-    
+
         for gpr, level in zip(keys, levels):
             if isinstance(obj, DataFrame) and is_in_obj(gpr):  # df.groupby(df['name'])
                 in_axis = True
                 exclusions.add(gpr.name)
-    
+
             elif is_in_axis(gpr):  # df.groupby('name')
                 if obj.ndim != 1 and gpr in obj:
                     if validate:

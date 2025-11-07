@@ -34,7 +34,7 @@ def create_target(df: pd.DataFrame, period: int = 5) -> pd.DataFrame:
         pd.DataFrame: 타겟 변수('target')가 추가된 데이터프레임.
     """
     df_target = df.copy()
-    
+
     # 종목별로 미래 수익률 계산
     def calculate_future_return(group):
         group['future_return'] = group['Close'].shift(-period) / group['Close'] - 1
@@ -50,22 +50,22 @@ def create_target(df: pd.DataFrame, period: int = 5) -> pd.DataFrame:
     if 'code' not in df_target.columns and 'code' in df.columns:
         # preserve original alignment
         df_target['code'] = df['code'].values
-    
+
     # 미래 수익률이 0보다 크면 1(상승), 아니면 0(하락/보합)
     # future_return이 NaN이 아닌 행에 대해서만 target 생성
     df_target['target'] = 0
     valid_indices = df_target['future_return'].notna()
     df_target.loc[valid_indices, 'target'] = (df_target.loc[valid_indices, 'future_return'] > 0).astype(int)
-    
+
     # 미래 데이터를 사용했으므로, 타겟을 계산할 수 없는 마지막 'period'일 만큼의 데이터는 제거
     df_target = df_target.dropna(subset=['future_return'])
-    
+
     return df_target
 
-def split_data(df: pd.DataFrame, 
-               features: List[str], 
-               target: str, 
-               test_size: float = 0.2, 
+def split_data(df: pd.DataFrame,
+               features: List[str],
+               target: str,
+               test_size: float = 0.2,
                random_state: int = 42) -> Tuple:
     """
     데이터를 학습용과 테스트용으로 분리하고, 피처 스케일링을 적용합니다.
@@ -101,7 +101,7 @@ def split_data(df: pd.DataFrame,
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-    
+
     # 스케일링된 데이터를 다시 데이터프레임으로 변환
     X_train = pd.DataFrame(X_train_scaled, index=X_train.index, columns=X_train.columns)
     X_test = pd.DataFrame(X_test_scaled, index=X_test.index, columns=X_test.columns)

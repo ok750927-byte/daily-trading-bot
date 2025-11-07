@@ -21,7 +21,7 @@ def mock_data_path(tmp_path):
 
     # 긴 기간의 데이터 생성
     dates = pd.to_datetime(pd.date_range(start="2022-01-01", end="2023-01-10"))
-    
+
     price_data_001 = pd.DataFrame({
         'Open': np.random.uniform(100, 110, size=len(dates)),
         'High': np.random.uniform(110, 120, size=len(dates)),
@@ -37,7 +37,7 @@ def mock_data_path(tmp_path):
 
     fundamentals_data = pd.DataFrame({'code': ['001', '002'], 'BPS': [1000, 1500]})
     fundamentals_data.to_csv(fundamentals_dir / "fundamentals_20220601.parquet", index=False)
-    
+
     fundamentals_data_2 = pd.DataFrame({'code': ['001', '002'], 'BPS': [1015, 1520]})
     fundamentals_data_2.to_csv(fundamentals_dir / "fundamentals_20221201.parquet", index=False)
 
@@ -62,7 +62,7 @@ def test_load_all_data(mock_data_path):
     assert len(df) == 92 * 2 # 92 days in period * 2 stocks
     assert 'KOSPI' in df.columns
     assert 'BPS' in df.columns
-    
+
     df_001 = df[df['code'] == '001']
     assert df_001[df_001['date'] < '2022-12-01']['BPS'].iloc[-1] == 1000
     assert df_001[df_001['date'] >= '2022-12-01']['BPS'].iloc[0] == 1015
@@ -79,8 +79,8 @@ def test_create_features():
     """Test the feature creation logic."""
     dates = pd.to_datetime(pd.date_range(start="2023-01-01", periods=20))
     data = {
-        'code': ['A'] * 20, 
-        'date': dates, 
+        'code': ['A'] * 20,
+        'date': dates,
         'Close': np.arange(20),
         'Volume': np.arange(100, 120)
     }
